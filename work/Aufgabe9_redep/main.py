@@ -5,6 +5,7 @@ sys.path.insert(0, codedir)
 
 from surface import Surface
 import parameters as par
+import time
 
 import matplotlib.pyplot as plt
 
@@ -26,11 +27,12 @@ par.load_parameters(config_file)
 
 my_surface = Surface()
 
-my_surface.view_factor()
-
 my_surface.plot(10)  # 10 ist nur ein Dummy
 my_surface.write(10, filename)
-
+start = time.time()
+my_surface.view_factor()
+stop = time.time()
+print('Computation time for view_factor: ', (stop-start)*1000, 'ms')
 # plt.show()
 
 

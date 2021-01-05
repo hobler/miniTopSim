@@ -24,7 +24,7 @@ def advance(surface, dtime):
     """
     
     nx, ny = surface.normal_vector()
-    v = get_velocities(ny)
+    v = get_velocities(surface)
 
     surface.xvals += nx*dtime*v
     surface.yvals += ny*dtime*v
@@ -46,24 +46,35 @@ def timestep(dtime, time, end_time):
     """
     return dtime if (time + dtime) <= end_time else (end_time - time)
 
-def get_velocities(ny):
+
+def get_velocities(surface):
     """
     returns the surface velocities for each point
 
-    depending on the ETCHING parameter this function either returns the value
-    of the ETCH_RATE parameter for etching, or calculates the surface
-    velocity depending on the sputter flux density.
+    depending on the ETCHING and redep parameter this function either returns
+    the value of the ETCH_RATE parameter for etching, or calculates the surface
+    velocity depending on the sputter flux density or with the REDEP parameter
+    you calculate considering redeposition
 
-    :param ny: y-component of the surface normal
+    :param surface: surface object
 
     :returns: surface velocity for each surface point
     """
     if par.ETCHING is True:
         v = par.ETCH_RATE
-    else:
+    elif par.REDEP is True:
+        _, ny = surface.normal_vector()
         costheta = abs(ny)
         y = sputter.get_sputter_yield(costheta)
-        v=(par.BEAM_CURRENT_DENSITY/sciconst.e * y * costheta) / par.DENSITY
-        v=v*1e7 #converting cm/s --> nm/s
+        f_sput = (par.BEAM_CURRENT_DENSITY / sciconst.e * y * costheta)
+        f_redep = surface.view_factor() @ f_sput
+        v = 1e7 * (f_sput - f_redep) / par.DENSITY
+    else:
+        _, ny = surface.normal_vector()
+        costheta = abs(ny)
+        y = sputter.get_sputter_yield(costheta)
+        v = (par.BEAM_CURRENT_DENSITY/sciconst.e * y * costheta) / par.DENSITY
+        v = v * 1e7  # converting cm/s --> nm/s
         
     return v
+

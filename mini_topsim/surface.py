@@ -274,37 +274,82 @@ class Surface:
         return (np.mean(distances12) + np.mean(distances21)) / 2
 
     def view_factor(self):
-        nodes = np.vstack((self.xvals, self.yvals)).T
-        nodes_n = self.normal_vector()
-        #print('normals: ', nodes_n)
+        # column_stack stacks along the second dimension
+        # vstack stacks along the first dimension
+        # vstack((a,b)).T == column_stack((a,b))
+        nodes = np.column_stack((self.xvals, self.yvals))
+        nodes_n = np.column_stack(self.normal_vector())
 
         # space for all node-distances
         # symmetrische Matrix
         distance = np.zeros((int(nodes.size/2), (int(nodes.size/2))))
-        #distance_v =
-        print(distance.shape)
+        # Distanz Vektor-Matrix
+        # 2x2 Array mit jeweils einer Liste gefüllt
+        # distance_v[startpunkt][endpunkt] -> Vektor zw. stp. und endp.
+        distance_v = np.zeros((int(nodes.size/2), (int(nodes.size/2))),
+                              dtype=('f8', 2))
+        '''print('distance_v shape', distance_v.shape)
+        print('distance_v[0] shape', distance_v[0].shape)
+        print('distance_v[0][0] shape', distance_v[0][0].shape)
+        print('distance_v[0][0][0] shape', distance_v[0][0][0].shape)
+        print('-_-_-_-_-_-_-_-_-')
+        print('distance_v type: ', type(distance_v))
+        print('distance_v[0] type: ', type(distance_v[0]))
+        print('distance_v[0][0] type: ', type(distance_v[0][0]))
+        print('distance_v[0][0][0] type: ', type(distance_v[0][0][0]))
+        print('distance_v[0][0][0]: ', (distance_v[0][0][0]))'''
+        # Winkel Vektor-Matrix
+        # 2x2 Array mit jeweils einer Liste gefüllt
+        # Subarray -> [cos(alpha), cos(beta)]
+        # cosines[startpunkt][endpunkt] -> gibt zugehörige Winkel
+        cosines = np.zeros((int(nodes.size/2), (int(nodes.size/2))))
 
         # Iteration über jeden Punkt und Berechnung der Distanzen
         for j, node_j in enumerate(nodes):
             for i, node_i in enumerate(nodes):  # make i start at > j
                 if i < j:  # nur obere Dreiecksmatrix muss berechnet werden
                     continue
-                print('    index i', i)
+
+                vector = node_i - node_j
+
+                distance_v[j][i] = vector  # obere Dreiecksmatrix
+                distance_v[i][j] = -vector  # untere
                 # sqrt(delta_x^2+delta_y^2)
-                dist = math.sqrt(abs(node_j[0] - node_i[0])
-                                 + abs(node_j[1] - node_i[1]))
-                distance[i][j] = dist  # Werte werden hier gleich in obere und
-                distance[j][i] = dist  # untere Dreiecksmatrix geschrieben.
+                dist = np.sqrt(np.sum(np.square(vector)))
+
+                distance[j][i] = dist  # Werte werden hier gleich in obere und
+                # TODO: Obere Dreiecksmatrix runterkopieren
+                distance[i][j] = dist  # untere Dreiecksmatrix geschrieben.
                 # Diagonale ist Distanz = 0
-                #dist_v
 
+            # Winkelberechnung: cos(phi) = skalarprodukt(u,v)/(|u|*|v|)
+            # obere  Dreiecksmatrix -> cos(alpha)
+            # untere Dreiecksmatrix -> cos(beta)
+            # @ -> Matrix-Multiplikation
+            # out -> defaultvalue (0), wenn where Bedingung nicht erfüllt
+            #     -> Greift wenn Start- und Endnode gleich sind
+            cosines[j] = np.divide(
+                distance_v[j] @ nodes_n[j], distance[j],
+                out=np.zeros_like(distance[j]),
+                where=distance[j] != 0)
 
+            # TODO: Quest: delta(l) Mittelwert der Benachbarten Segmente
+            # distance[j]
+        # roll -> shift des Arrays (C like gespeichert) Siehe Doc
+        # TODO: Frage, geht das schneller?
+        delta_l = np.diag(np.roll(distance, 1) + np.roll(distance, -1)) / 2
 
-        #print(distance.shape)
-        #print('distances: \n', distance)
-        #with open('file_2.csv', 'wb') as abc:
-        #    np.savetxt(abc, distance, delimiter=';')
+        # TODO: KOMMENTIEREN
+        v_factor = np.divide(
+                        np.multiply(cosines.T, cosines,
+                                    out=np.zeros_like(cosines),
+                                    where=np.logical_and(cosines != 0,
+                                                         cosines.T != 0)),
+                        2 * distance,
+                        out=np.zeros_like(cosines.T * cosines),
+                        where=distance != 0) * delta_l
 
+        return v_factor
 
 
 def point2segment_dist(p, seg):
