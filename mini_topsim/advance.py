@@ -10,7 +10,7 @@ function timestep: calculates the timestep for a given time
 import numpy as np
 import mini_topsim.surface 
 import mini_topsim.sputtering as sputter
-import scipy.constants as sciconst
+from beam import get_fbeam
 
 import parameters as par
 
@@ -24,7 +24,7 @@ def advance(surface, dtime):
     """
     
     nx, ny = surface.normal_vector()
-    v = get_velocities(ny)
+    v = get_velocities(ny, surface.xvals)
 
     surface.xvals += nx*dtime*v
     surface.yvals += ny*dtime*v
@@ -46,7 +46,7 @@ def timestep(dtime, time, end_time):
     """
     return dtime if (time + dtime) <= end_time else (end_time - time)
 
-def get_velocities(ny):
+def get_velocities(ny, x):
     """
     returns the surface velocities for each point
 
@@ -56,6 +56,8 @@ def get_velocities(ny):
 
     :param ny: y-component of the surface normal
 
+    :param x: x-component of the surface
+
     :returns: surface velocity for each surface point
     """
     if par.ETCHING is True:
@@ -63,7 +65,8 @@ def get_velocities(ny):
     else:
         costheta = abs(ny)
         y = sputter.get_sputter_yield(costheta)
-        v=(par.BEAM_CURRENT_DENSITY/sciconst.e * y * costheta) / par.DENSITY
-        v=v*1e7 #converting cm/s --> nm/s
+        fbeam = get_fbeam(x)
+        v = (fbeam * y * costheta) / par.DENSITY
+        v = v*1e7  # converting cm/s --> nm/s
         
     return v
