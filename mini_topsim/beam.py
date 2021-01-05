@@ -19,7 +19,7 @@ deviation and the get_fbeam to calculate the flux beam density of the selected
 beam.
 
 This file contains the following functions:
-    * init_beam_profile - initalizes the beam profile
+    * init_beam_profile - initializes the beam profile
     * get_sigma - calculates the standard deviation
     * get_fbeam - calculates the beam flux density
 
@@ -43,10 +43,12 @@ from scipy import constants as const
 from scipy import special as sp
 import parameters as par
 
+
 class BeamConstant:
     """
     Class to describe the broad beam with associated callable object
     """
+
     def __init__(self):
         """
         The constructor for the BeamConstant class
@@ -77,6 +79,7 @@ class BeamGaussian:
     """
     Class to describe the Gaussian beam with associated callable object
     """
+
     def __init__(self):
         """
         The constructor for the BeamGaussian class
@@ -111,21 +114,25 @@ class BeamGaussian:
             I = self.I
         if fwhm is None:
             sigma = self.sigma
+        else:
+            sigma = get_sigma(fwhm)
         if Wz is None:
             Wz = self.Wz
         if xc is None:
             xc = self.xc
 
         fbeam = I / (const.e * np.sqrt(2 * sigma) * Wz) \
-                *  np.exp(-(x - xc)**2 / (2 * sigma**2))
+                * np.exp(-(x - xc) ** 2 / (2 * sigma ** 2))
 
-        #Converting beam flux density to atoms/cm^2s
+        # Converting beam flux density to atoms/cm^2s
         return fbeam * 1e14
+
 
 class BeamError:
     """
     Class to describe the error function beam with associated callable object
     """
+
     def __init__(self):
         """
         The constructor for the BeamError class
@@ -146,7 +153,7 @@ class BeamError:
 
         self.sigma = get_sigma(self.fwhm)
 
-    def __call__(self, x, I=None, fwhm=None, Wx= None, Wz=None, xc=None):
+    def __call__(self, x, I=None, fwhm=None, Wx=None, Wz=None, xc=None):
         """
         Callable object for calculating the beam flux density
 
@@ -163,6 +170,8 @@ class BeamError:
             I = self.I
         if fwhm is None:
             sigma = self.sigma
+        else:
+            sigma = get_sigma(fwhm)
         if Wx is None:
             Wx = self.Wx
         if Wz is None:
@@ -174,15 +183,16 @@ class BeamError:
         x2 = xc + Wx / 2
 
         fbeam = I / (2 * const.e * Wx * Wz) \
-                * (sp.erf(- (x - x2) / (np.sqrt(2) * sigma)) \
+                * (sp.erf(- (x - x2) / (np.sqrt(2) * sigma))
                    - sp.erf(- (x - x1) / (np.sqrt(2) * sigma)))
 
-        #Converting beam flux density to atoms/cm^2s
+        # Converting beam flux density to atoms/cm^2s
         return fbeam * 1e14
+
 
 def init_beam_profile(beam_type=None):
     """
-    Initalising the beam profile according for later use
+    Initialising the beam profile according for later use
 
     Keyword arguments:
     :param beam_type: beam profile - can be 'constant', 'Gaussian' or
@@ -203,9 +213,10 @@ def init_beam_profile(beam_type=None):
     else:
         exit('Error: BEAM_TYPE invalid\n')
 
+
 def get_sigma(fwhm):
     """
-    Calculating the standard deviatopn from the Full Width at half maximum
+    Calculating the standard deviation from the Full Width at half maximum
 
     Keyword arguments:
     :param fwhm: Full Width at half maximum
@@ -213,7 +224,8 @@ def get_sigma(fwhm):
     """
     return fwhm / (np.sqrt(8 * np.log(2)))
 
-def get_fbeam(x, J=None, I=None, fwhm=None, Wx= None, Wz=None, xc=None):
+
+def get_fbeam(x, J=None, I=None, fwhm=None, Wx=None, Wz=None, xc=None):
     """
     Calculating the beam flux density in atoms/cm^2s
 
