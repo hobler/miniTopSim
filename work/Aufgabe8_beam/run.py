@@ -14,4 +14,4 @@ sys.path.insert(0, codedir)
 
 from mini_topsim.main import mini_topsim
 
-success = mini_topsim()
+mini_topsim()

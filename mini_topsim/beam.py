@@ -2,7 +2,7 @@
 Implementation of three beam classes to calculate  the beam flux density
 
 This script is used to implement three different types of beams - broad beam,
-Gaussian beam and error function beam through classes and calculate the beam
+Gaussian beam and error function beam through classes and calculates the beam
 flux density in atoms/cm^2s according to the corresponding formula and
 parameters.
 
@@ -42,6 +42,69 @@ import numpy as np
 from scipy import constants as const
 from scipy import special as sp
 import parameters as par
+
+
+def init_beam_profile(config=None, beam_type=None):
+    """
+    Initialising the beam profile according to the parameters or arguments
+
+    Keyword arguments:
+    :param config: config file to read parameters from (default None)
+    :param beam_type: beam profile - can be 'constant', 'Gaussian' or
+                      'error function' (default None)
+    :return:
+    """
+    global beam_profile
+
+    if config is not None:
+        par.load_parameters(config)
+    if beam_type is None:
+        beam_type = par.BEAM_TYPE
+
+    if beam_type == 'constant':
+        beam_profile = BeamConstant()
+    elif beam_type == 'Gaussian':
+        beam_profile = BeamGaussian()
+    elif beam_type == 'error function':
+        beam_profile = BeamError()
+    else:
+        exit('Error: BEAM_TYPE invalid\n')
+
+
+def get_sigma(fwhm):
+    """
+    Calculating the standard deviation from the Full Width at half maximum
+
+    Keyword arguments:
+    :param fwhm: Full Width at half maximum
+    :return: standard deviation
+    """
+    return fwhm / (np.sqrt(8 * np.log(2)))
+
+
+def get_fbeam(x, J=None, I=None, fwhm=None, Wx=None, Wz=None, xc=None):
+    """
+    Calculating the beam flux density in atoms/cm^2s
+
+    Keyword arguments:
+    :param x: x-values in nm
+    :param J: beam current density in A/cm^2 for broad beam profiles
+              (default None)
+    :param I: beam current in A (default None)
+    :param fwhm: Full Width at half maximum in nm (default None)
+    :param Wx: beam width in nm for error function profiles (default None)
+    :param Wz: scan width in nm (default None)
+    :param xc: beam center in nm (default None)
+    :return: beam flux density in atoms/cm^2s
+    """
+    if isinstance(beam_profile, BeamConstant):
+        fbeam = beam_profile(x, J)
+    elif isinstance(beam_profile, BeamGaussian):
+        fbeam = beam_profile(x, I, fwhm, Wz, xc)
+    elif isinstance(beam_profile, BeamError):
+        fbeam = beam_profile(x, I, fwhm, Wx, Wz, xc)
+
+    return fbeam
 
 
 class BeamConstant:
@@ -188,63 +251,3 @@ class BeamError:
 
         # Converting beam flux density to atoms/cm^2s
         return fbeam * 1e14
-
-
-def init_beam_profile(beam_type=None):
-    """
-    Initialising the beam profile according for later use
-
-    Keyword arguments:
-    :param beam_type: beam profile - can be 'constant', 'Gaussian' or
-                      'error function' (default None)
-    :return:
-    """
-    global beam_profile
-
-    if beam_type is None:
-        beam_type = par.BEAM_TYPE
-
-    if beam_type == 'constant':
-        beam_profile = BeamConstant()
-    elif beam_type == 'Gaussian':
-        beam_profile = BeamGaussian()
-    elif beam_type == 'error function':
-        beam_profile = BeamError()
-    else:
-        exit('Error: BEAM_TYPE invalid\n')
-
-
-def get_sigma(fwhm):
-    """
-    Calculating the standard deviation from the Full Width at half maximum
-
-    Keyword arguments:
-    :param fwhm: Full Width at half maximum
-    :return: standard deviation
-    """
-    return fwhm / (np.sqrt(8 * np.log(2)))
-
-
-def get_fbeam(x, J=None, I=None, fwhm=None, Wx=None, Wz=None, xc=None):
-    """
-    Calculating the beam flux density in atoms/cm^2s
-
-    Keyword arguments:
-    :param x: x-values in nm
-    :param J: beam current density in A/cm^2 for broad beam profiles
-              (default None)
-    :param I: beam current in A (default None)
-    :param fwhm: Full Width at half maximum in nm (default None)
-    :param Wx: beam width in nm for error function profiles (default None)
-    :param Wz: scan width in nm (default None)
-    :param xc: beam center in nm (default None)
-    :return: beam flux density in atoms/cm^2s
-    """
-    if isinstance(beam_profile, BeamConstant):
-        fbeam = beam_profile(x, J)
-    elif isinstance(beam_profile, BeamGaussian):
-        fbeam = beam_profile(x, I, fwhm, Wz, xc)
-    elif isinstance(beam_profile, BeamError):
-        fbeam = beam_profile(x, I, fwhm, Wx, Wz, xc)
-
-    return fbeam
