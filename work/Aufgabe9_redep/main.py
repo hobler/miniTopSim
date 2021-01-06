@@ -23,7 +23,7 @@ if os.path.exists(filename):
 
 par.load_parameters(config_file)
 
-# my stuff
+# my stuff (Claus Spitzer 11816266)
 
 my_surface = Surface()
 

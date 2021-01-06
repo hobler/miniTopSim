@@ -25,7 +25,6 @@ def advance(surface, dtime):
     
     nx, ny = surface.normal_vector()
     v = get_velocities(surface)
-
     surface.xvals += nx*dtime*v
     surface.yvals += ny*dtime*v
     surface.deloop()

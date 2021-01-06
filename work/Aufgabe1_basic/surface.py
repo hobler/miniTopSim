@@ -72,3 +72,4 @@ class Surface:
             f.write(f"surface: {time} {len(self.xVals)} x-positions y-positions\n")
             for x, y in zip(self.xVals, self.yVals):
                 f.write(f"{x} {y}\n")
+

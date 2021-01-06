@@ -274,6 +274,13 @@ class Surface:
         return (np.mean(distances12) + np.mean(distances21)) / 2
 
     def view_factor(self):
+        """
+        calculates the view factor of a surface.
+        point-to-point visibility considered according to assignment
+        Returns
+        -------
+        view factor of the surface
+        """
         # column_stack stacks along the second dimension
         # vstack stacks along the first dimension
         # vstack((a,b)).T == column_stack((a,b))
@@ -318,7 +325,6 @@ class Surface:
                 dist = np.sqrt(np.sum(np.square(vector)))
 
                 distance[j][i] = dist  # Werte werden hier gleich in obere und
-                # TODO: Obere Dreiecksmatrix runterkopieren
                 distance[i][j] = dist  # untere Dreiecksmatrix geschrieben.
                 # Diagonale ist Distanz = 0
 
@@ -333,18 +339,15 @@ class Surface:
                 out=np.zeros_like(distance[j]),
                 where=distance[j] != 0)
 
-            # TODO: Quest: delta(l) Mittelwert der Benachbarten Segmente
-            # distance[j]
         # roll -> shift des Arrays (C like gespeichert) Siehe Doc
-        # TODO: Frage, geht das schneller?
+        # Frage, geht das schneller?
         delta_l = np.diag(np.roll(distance, 1) + np.roll(distance, -1)) / 2
 
-        # TODO: KOMMENTIEREN
         v_factor = np.divide(
                         np.multiply(cosines.T, cosines,
                                     out=np.zeros_like(cosines),
-                                    where=np.logical_and(cosines != 0,
-                                                         cosines.T != 0)),
+                                    where=np.logical_and(cosines > 0,
+                                                         cosines.T > 0)),
                         2 * distance,
                         out=np.zeros_like(cosines.T * cosines),
                         where=distance != 0) * delta_l
