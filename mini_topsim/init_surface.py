@@ -3,7 +3,7 @@ Implements a function "init_surface" to initialize the Surface
 """
 
 import numpy as np
-import parameters as par
+import mini_topsim.parameters as par
 
 
 def init_surface(xvals):
@@ -38,8 +38,7 @@ def init_surface(xvals):
         
     elif par.INITIAL_SURFACE_TYPE == 'V-Shape':
         yvals=_vshape(xvals)
-        
-        
+
     else:
         yvals=_cosine(xvals)
         

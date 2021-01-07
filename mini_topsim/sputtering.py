@@ -1,6 +1,6 @@
 import os
 
-import parameters as par
+import mini_topsim.parameters as par
 
 import numpy as np
 from scipy.interpolate import interp1d
@@ -10,7 +10,7 @@ def init_sputtering():
     """
     initializes the get_sputter_yield module variable
 
-    depending on the set parameters this function either attaches a callable
+    Depending on the set parameters this function either attaches a callable
     object that implements the yamamura function to the get_sputter_yield
     variable, or one that reads the sputter yields from a given table.
     """
@@ -21,36 +21,52 @@ def init_sputtering():
     else:
         get_sputter_yield = Sputter_yield_table(par.SPUTTER_YIELD_FILE)
 
+
 class Sputter_yield_Yamamura():
     """
-    Describes a callable object that implements the yamamura function.
+    describes a callable object that implements the yamamura function
     """
-    def __init__(self, y0,f, b):
+    def __init__(self, y0, f, b):
         self.y0 = y0
         self.f = f
         self.b = b
     
-    def __call__(self, costheta):
+    def __call__(self, costheta, sintheta=None):
         """
-        calculates the sputter yield according to the yamamura function.
+        calculates the sputter yield and its derivative
+
+        Calculates the sputter yield according to the yamamura function
+        and its derivative with respect to theta.
 
         :param costheta: the cosine of the angle between the surface normal 
         and the sputter beam direction.
+        :param sintheta: the sine of the angle between the surface normal
+        and the sputter beam direction (default value None).
     
-        :returns: Sputter yield Y
+        :returns: Sputter yield Y and its derivative
         """
-        y=self.y0*costheta**(-self.f) * np.exp(self.b*(1-1/costheta))
+        y = self.y0 * costheta**(-self.f) * np.exp(self.b * (1 - 1/costheta))
 
-        #removes division by 0 errors. If costheta = 0 -> Y should be 0
-        y[np.isnan(y)]=0 
-        return y
+        if sintheta is None:
+            theta = np.arccos(costheta)
+            sintheta = np.sin(theta)
+
+        y_deriv = self.y0 * sintheta * np.exp(self.b * (1 - 1/costheta)) * \
+                  costheta**(-self.f - 2) * (self.f * costheta - self.b)
+
+        # removes division by 0 errors. If costheta = 0 -> Y should be 0
+        y[np.isnan(y)] = 0
+        y_deriv[np.isnan(y_deriv)] = 0
+
+        return y, y_deriv
+
 
 class Sputter_yield_table():
     """
-    Describes a callable object that interpolates sputter yields from a given file.
+    describes a callable object that interpolates sputter yields from a given file
     """
     def __init__(self, filename):
-        filepath = os.path.join(os.path.dirname(__file__), 'tables/',filename)
+        filepath = os.path.join(os.path.dirname(__file__), 'tables/', filename)
         print(filepath)
         data = np.genfromtxt(filepath, skip_header = 1)
         tiltvals = data[:,0]
@@ -62,7 +78,7 @@ class Sputter_yield_table():
         interpolates sputter yields from given data in a file
 
         :param costheta: the cosine of the angle between the surface normal 
-        and the sputter beam direction.
+        and the sputter beam direction
 
         :returns: Sputter yield Y
         """

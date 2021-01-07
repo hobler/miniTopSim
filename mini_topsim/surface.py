@@ -8,19 +8,18 @@ includes function
 """
 import numpy as np
 import matplotlib.pyplot as plt
-import os
 import init_surface as init
 from numpy import arccos, dot, pi, cross
 from numpy.linalg import norm
 
-import parameters as par
+import mini_topsim.parameters as par
 
 
 class Surface:
 
     def __init__(self):
         """
-        Initializes the x and y-Values with the init_surface module
+        initializes the x and y-Values with the init_surface module
         """
         if par.INITIAL_SURFACE_TYPE == 'File':          
             srf_file = par.INITIAL_SURFACE_FILE
@@ -35,7 +34,7 @@ class Surface:
         """
         calculates the normal vectors in every point of the surface
 
-        calculates the vector between the nearest neigbours of the point
+        calculates the vector between the nearest neighbours of the point
         and returns the normal vector of it
 
         :returns: x Values, y Values of the normal vectors
@@ -49,7 +48,7 @@ class Surface:
         dx[-1] = self.xvals[-1] - self.xvals[-2]
         dy[-1] = self.yvals[-1] - self.yvals[-2]
 
-        # right neigbour - left neigbour
+        # right neighbour - left neighbour
         dy[1:-1] = self.yvals[2:] - self.yvals[:-2]
         dx[1:-1] = self.xvals[2:] - self.xvals[:-2]
 
@@ -88,7 +87,7 @@ class Surface:
     
     def eliminate_overhangs(self):
         """
-        Eliminates overhanging structures iteratively
+        eliminates overhanging structures iteratively
         """        
         #from left to right
         for index in range(0, len(self.xvals)-1):
@@ -239,6 +238,7 @@ class Surface:
         self._insertintersectionpoints()
         self._removeflaged()
         self._setvals()
+
     def distance(self, refsrf):
         """
         calculates the distance to a reference surface 
@@ -276,7 +276,7 @@ def point2segment_dist(p, seg):
     If point projects onto the line segment, the orthogonal distance
     from the point to the line is returned.
     If the point does not project to the line segment, the distances
-    to both segment endpoints is calculated and take the shortest 
+    to both segment endpoints is calculated and take the shortest
     distance is returned.
 
     :param point: Numpy array p=[x,y]
@@ -290,7 +290,7 @@ def point2segment_dist(p, seg):
     if arccos(round(dot((p - start) / norm(p - start),
         (end - start) / norm(end - start)), 8)) > pi / 2:
         return norm(p - start)
-    if arccos(round(dot((p - end) / norm(p - end), 
+    if arccos(round(dot((p - end) / norm(p - end),
         (start - end) / norm(start - end)), 8)) > pi / 2:
         return norm(p - end)
     return norm(cross(start - end, start - p))/norm(end-start)
