@@ -3,17 +3,16 @@ Test to compare the gauss_1 simulation values to a saved gauss_1.srf_save file
 
 This script allows user to compare the current simulation of the gauss_1.cfg
 with saved values from gauss_1.srf_save and utilizes the Gaussian beam profile.
-It plots both graphs for one time step. If the tests fail, an assert statement
-is printed out.
+If the tests fail, an assert statement will be printed out.
 
 This file contains the following functions:
+    *test_run - test the execution of the miniTopSim simulation
     *test_gauss_1 - tests the values from gauss_1.cfg and gauss_1.srf_save
 """
 
 import pytest
 import os
 import sys
-import numpy as np
 
 # Adding the code directory to sys.path
 filedir = os.path.dirname(__file__)
@@ -25,15 +24,23 @@ from mini_topsim.surface import Surface
 from mini_topsim.main import mini_topsim
 
 
+def test_run():
+    """
+    Test running miniTopSim
+
+    :return:
+    """
+    config_file = os.path.join(filedir, 'gauss_1.cfg')
+    success = mini_topsim(config_file)
+    assert success is None, 'Error during executing miniTopSim'
+
+
 def test_gauss_1():
     """
     Compares the the values from erf_1.cfg and erf_1.srf_save through distance
 
     :return:
     """
-    config_file = os.path.join(filedir, 'gauss_1.cfg')
-    mini_topsim(config_file)
-
     srf_filename_1 = os.path.join(filedir, 'gauss_1.srf')
     srf_filename_2 = os.path.join(filedir, 'gauss_1.srf_save')
     srfplotter = srfplot._SurfacePlotter(srf_filename_1, srf_filename_2)
@@ -52,5 +59,6 @@ def test_gauss_1():
         'number of x-values from simulation and gauss_1.srf_save do not match'
     assert len(srf1.yvals) == len(srf2.yvals), \
         'number of y-values from simulation and gauss_1.srf_save do not match'
-    assert dist <= 1e-9, \
-        'values from simulation and erf_1.srf_save do not match'
+    assert dist <= 0.005, \
+        'values from simulation and gauss_1.srf_save do not match'\
+        + ' distance %.3f is too great' % dist

@@ -1,12 +1,12 @@
 """
 Test to compare the erf_1 simulation values to a saved erf_1.srf_save file
 
-This script allows user to compare the current simulation of the erf_1.cfg with
-saved values from erf_1.srf_save and utilizes the error function beam profile.
-It plots both graphs for one time step. If the tests fail, an assert statement
-is printed out.
+This script allows user to compare the current simulation of the erf_1.cfg
+with saved values from erf_1.srf_save and utilizes the Gaussian beam profile.
+If the tests fail, an assert statement will be printed out.
 
 This file contains the following functions:
+    *test_run - test the execution of the miniTopSim simulation
     *test_erf_1 - tests the values from erf_1.cfg and erf_1.srf_save
 """
 
@@ -24,15 +24,23 @@ from mini_topsim.surface import Surface
 from mini_topsim.main import mini_topsim
 
 
-def test_gauss_1():
+def test_run():
+    """
+    Test running miniTopSim.
+
+    :return:
+    """
+    config_file = os.path.join(filedir, 'erf_1.cfg')
+    success = mini_topsim(config_file)
+    assert success is None, 'Error during executing miniTopSim'
+
+
+def test_erf_1():
     """
     Compares the the values from erf_1.cfg and erf_1.srf_save through distance
 
     :return:
     """
-    config_file = os.path.join(filedir, 'erf_1.cfg')
-    mini_topsim(config_file)
-
     srf_filename_1 = os.path.join(filedir, 'erf_1.srf')
     srf_filename_2 = os.path.join(filedir, 'erf_1.srf_save')
     srfplotter = srfplot._SurfacePlotter(srf_filename_1, srf_filename_2)
@@ -48,8 +56,9 @@ def test_gauss_1():
     dist = srf1.distance(srf2)
 
     assert len(srf1.xvals) == len(srf2.xvals), \
-        'number of x-values from simulation and gauss_1.srf_save do not match'
+        'number of x-values from simulation and erf_1.srf_save do not match'
     assert len(srf1.yvals) == len(srf2.yvals), \
-        'number of y-values from simulation and gauss_1.srf_save do not match'
-    assert dist <= 1e-9, \
-        'values from simulation and erf_1.srf_save do not match'
+        'number of y-values from simulation and erf_1.srf_save do not match'
+    assert dist <= 0.005, \
+        'values from simulation and erf_1.srf_save do not match' \
+        + ' distance %.3f is too great' % dist
