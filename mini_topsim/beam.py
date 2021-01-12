@@ -12,28 +12,23 @@ center xc and the Full Width at half maximum FWHM.
 The BeamError class is dependent on the beam current I, scan width Wz, beam
 width Wx, beam center xc and the Full Width at half maximum FWHM.
 
-The initialisation function selects the beam profile based on the users beam
-type choice or by using the loaded parameters.
+The initialisation function selects the beam profile based on the loaded
+parameters.
 Other functions include the get_sigma to calculate the required standard
-deviation and the get_fbeam to calculate the flux beam density of the selected
-beam.
+deviation.
 
 This file contains the following functions:
     * init_beam_profile - initializes the beam profile
     * get_sigma - calculates the standard deviation
-    * get_fbeam - calculates the beam flux density
 
 It also includes these classes and methods:
     * BeamConstant - class used to represent the broad beam
-        * __init__ - initialize the class object
         * __call__ - returns the calculated beam flux density for the broad
                      beam
     * BeamGaussian - class used to represent the Gaussian beam
-        * __init__ - initialize the class object
         * __call__ - returns the calculated beam flux density for the Gaussian
                      beam
     * BeamError - class used to represent the error function beam
-        * __init__ - initialize the class object
         * __call__ - returns the calculated beam flux density for the error
                      function beam
 """
@@ -44,28 +39,19 @@ from scipy import special as sp
 import parameters as par
 
 
-def init_beam_profile(config=None, beam_type=None):
+def init_beam_profile():
     """
-    Initialising the beam profile according to the parameters or arguments
+    Initialising the beam profile according to the config parameters
 
-    Keyword arguments:
-    :param config: config file to read parameters from (default None)
-    :param beam_type: beam profile - can be 'constant', 'Gaussian' or
-                      'error function' (default None)
     :return:
     """
     global beam_profile
 
-    if config is not None:
-        par.load_parameters(config)
-    if beam_type is None:
-        beam_type = par.BEAM_TYPE
-
-    if beam_type == 'constant':
+    if par.BEAM_TYPE == 'constant':
         beam_profile = BeamConstant()
-    elif beam_type == 'Gaussian':
+    elif par.BEAM_TYPE == 'Gaussian':
         beam_profile = BeamGaussian()
-    elif beam_type == 'error function':
+    elif par.BEAM_TYPE == 'error function':
         beam_profile = BeamError()
     else:
         exit('Error: BEAM_TYPE invalid\n')
@@ -82,58 +68,40 @@ def get_sigma(fwhm):
     return fwhm / (np.sqrt(8 * np.log(2)))
 
 
-def get_fbeam(x, J=None, I=None, fwhm=None, Wx=None, Wz=None, xc=None):
-    """
-    Calculating the beam flux density in atoms/cm^2s
-
-    Keyword arguments:
-    :param x: x-values in nm
-    :param J: beam current density in A/cm^2 for broad beam profiles
-              (default None)
-    :param I: beam current in A (default None)
-    :param fwhm: Full Width at half maximum in nm (default None)
-    :param Wx: beam width in nm for error function profiles (default None)
-    :param Wz: scan width in nm (default None)
-    :param xc: beam center in nm (default None)
-    :return: beam flux density in atoms/cm^2s
-    """
-    if isinstance(beam_profile, BeamConstant):
-        fbeam = beam_profile(x, J)
-    elif isinstance(beam_profile, BeamGaussian):
-        fbeam = beam_profile(x, I, fwhm, Wz, xc)
-    elif isinstance(beam_profile, BeamError):
-        fbeam = beam_profile(x, I, fwhm, Wx, Wz, xc)
-
-    return fbeam
-
-
 class BeamConstant:
     """
     Class to describe the broad beam with associated callable object
+
+    Attributes:
+    J: beam current density in A/cm^2
+    const_f: constant factor J / e
+
+    Methods:
+    __call__(self, x): Callable object for calculating the beam flux density
     """
 
-    def __init__(self):
+    def __init__(self, J=None):
         """
         The constructor for the BeamConstant class
 
-        Attributes:
-            J: beam current density in A/cm^2
-        """
-        self.J = par.BEAM_CURRENT_DENSITY
+        If the arguments are not passed in, the loaded parameters from the
+        config file will be used instead.
 
-    def __call__(self, x, J=None):
+        Keyword arguments:
+        :param J: beam current density in A/cm^2 (default None)
+        """
+        self.J = par.BEAM_CURRENT_DENSITY if J is None else J
+        self.const_f = self.J / const.e
+
+    def __call__(self, x):
         """
         Callable object for calculating the beam flux density
 
         Keyword arguments:
         :param x: x-values in nm
-        :param J: beam current density in A/cm^2 (default None)
         :return: beam flux density in atoms/cm^2s
         """
-        if J is None:
-            J = self.J
-
-        fbeam = np.ones_like(x) * J / const.e
+        fbeam = np.ones_like(x) * self.const_f
 
         return fbeam
 
@@ -141,51 +109,49 @@ class BeamConstant:
 class BeamGaussian:
     """
     Class to describe the Gaussian beam with associated callable object
+
+    Attributes:
+    I: beam current in A
+    Wz: scan width in nm
+    xc: beam center in nm
+    fwhm: Full Width at half maximum in nm
+    sigma: calculated standard deviation in nm
+    const_f : constant factor I / (e * sqrt(2 * sigma) * Wz)
+
+    Methods:
+    __call__(self, x): Callable object for calculating the beam flux density
     """
 
-    def __init__(self):
+    def __init__(self, I=None, fwhm=None, Wz=None, xc=None):
         """
         The constructor for the BeamGaussian class
 
-        Attributes:
-            I: beam current in A
-            Wz: scan width in nm
-            xc: beam center in nm
-            fwhm: Full Width at half maximum in nm
-            sigma: standard deviation in nm
+        If the arguments are not passed in, the loaded parameters from the
+        config file will be used instead.
+
+        Keyword arguments:
+        :param I: beam current in A (default None)
+        :param fwhm: Full Width at half maximum in nm (default None)
+        :param Wz: scan width in nm (default None)
+        :param xc: beam center in nm (default None)
         """
-        self.I = par.BEAM_CURRENT
-        self.Wz = par.SCAN_WIDTH
-        self.xc = par.BEAM_CENTER
-        self.fwhm = par.FWHM
-
+        self.I = par.BEAM_CURRENT if I is None else I
+        self.fwhm = par.FWHM if fwhm is None else fwhm
+        self.Wz = par.SCAN_WIDTH if Wz is None else Wz
+        self.xc = par.BEAM_CENTER if xc is None else xc
         self.sigma = get_sigma(self.fwhm)
+        self.const_f = self.I / (const.e * np.sqrt(2 * self.sigma) * self.Wz)
 
-    def __call__(self, x, I=None, fwhm=None, Wz=None, xc=None):
+    def __call__(self, x):
         """
         Callable object for calculating the beam flux density
 
         Keyword arguments:
         :param x: x-values in nm
-        :param I: beam current in A (default None)
-        :param fwhm: Full Width at half maximum in nm (default None)
-        :param Wz: scan width in nm (default None)
-        :param xc: beam center in nm (default None)
         :return: beam flux density in atoms/cm^2s
         """
-        if I is None:
-            I = self.I
-        if fwhm is None:
-            sigma = self.sigma
-        else:
-            sigma = get_sigma(fwhm)
-        if Wz is None:
-            Wz = self.Wz
-        if xc is None:
-            xc = self.xc
-
-        fbeam = I / (const.e * np.sqrt(2 * sigma) * Wz) \
-                * np.exp(-(x - xc) ** 2 / (2 * sigma ** 2))
+        fbeam = self.const_f * np.exp(-(x - self.xc) ** 2
+                                      / (2 * self.sigma ** 2))
 
         # Converting beam flux density to atoms/cm^2s
         return fbeam * 1e14
@@ -194,60 +160,54 @@ class BeamGaussian:
 class BeamError:
     """
     Class to describe the error function beam with associated callable object
+
+    Attributes:
+    I: beam current in A
+    Wx: beam width in nm
+    Wz: scan width in nm
+    xc: beam center in nm
+    fwhm: Full Width at half maximum in nm
+    sigma: calculated standard deviation in nm
+    const_f : constant prefactor I / (2 * e * Wx * Wz)
+    x1: lower limit of the scan interval xc - Wx / 2
+    x2: upper limit of the scan interval xc + Wx / 2
     """
 
-    def __init__(self):
+    def __init__(self, I=None, fwhm=None, Wx=None, Wz=None, xc=None):
         """
         The constructor for the BeamError class
 
-        Attributes:
-            I: beam current in A
-            Wx: beam width in nm
-            Wz: scan width in nm
-            xc: beam center in nm
-            fwhm: Full Width at half maximum in nm
-            sigma: standard deviation in nm
-        """
-        self.I = par.BEAM_CURRENT
-        self.Wx = par.ERF_BEAM_WIDTH
-        self.Wz = par.SCAN_WIDTH
-        self.xc = par.BEAM_CENTER
-        self.fwhm = par.FWHM
-
-        self.sigma = get_sigma(self.fwhm)
-
-    def __call__(self, x, I=None, fwhm=None, Wx=None, Wz=None, xc=None):
-        """
-        Callable object for calculating the beam flux density
+        If the arguments are not passed in, the loaded parameters from the
+        config file will be used instead.
 
         Keyword arguments:
-        :param x: x-values in nm
         :param I: beam current in A (default None)
         :param fwhm: Full Width at half maximum in nm (default None)
         :param Wx: beam width in nm (default None)
         :param Wz: scan width in nm (default None)
         :param xc: beam center in nm (default None)
+        """
+        self.I = par.BEAM_CURRENT if I is None else I
+        self.fwhm = par.FWHM if fwhm is None else fwhm
+        self.Wx = par.ERF_BEAM_WIDTH if Wx is None else Wx
+        self.Wz = par.SCAN_WIDTH if Wz is None else Wz
+        self.xc = par.BEAM_CENTER if xc is None else xc
+        self.sigma = get_sigma(self.fwhm)
+        self.const_f = self.I / (2 * const.e * self.Wx * self.Wz)
+        self.x1 = self.xc - self.Wx / 2
+        self.x2 = self.xc + self.Wx / 2
+
+    def __call__(self, x):
+        """
+        Callable object for calculating the beam flux density
+
+        Keyword arguments:
+        :param x: x-values in nm
         :return: beam flux density in atoms/cm^2s
         """
-        if I is None:
-            I = self.I
-        if fwhm is None:
-            sigma = self.sigma
-        else:
-            sigma = get_sigma(fwhm)
-        if Wx is None:
-            Wx = self.Wx
-        if Wz is None:
-            Wz = self.Wz
-        if xc is None:
-            xc = self.xc
-
-        x1 = xc - Wx / 2
-        x2 = xc + Wx / 2
-
-        fbeam = I / (2 * const.e * Wx * Wz) \
-                * (sp.erf(- (x - x2) / (np.sqrt(2) * sigma))
-                   - sp.erf(- (x - x1) / (np.sqrt(2) * sigma)))
+        fbeam = self.const_f * \
+                 (sp.erf(-(x - self.x2) / (np.sqrt(2) * self.sigma))
+                   - sp.erf(- (x - self.x1) / (np.sqrt(2) * self.sigma)))
 
         # Converting beam flux density to atoms/cm^2s
         return fbeam * 1e14

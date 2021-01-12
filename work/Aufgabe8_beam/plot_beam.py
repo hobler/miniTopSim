@@ -22,7 +22,8 @@ filedir = os.path.dirname(__file__)
 codedir = os.path.join(filedir, '..', '..', 'mini_topsim')
 sys.path.insert(0, codedir)
 
-import mini_topsim.beam as beam
+import parameters as par
+from beam import BeamConstant, BeamError, BeamGaussian
 
 
 def plot_beam_comparison():
@@ -37,19 +38,19 @@ def plot_beam_comparison():
     xvals = np.arange(xmin, xmax + 1, step)
 
     # Initialize parameters
-    beam.init_beam_profile(config='const.cfg')
+    par.load_parameters('const.cfg')
 
     # Broad beam
-    beam.init_beam_profile(beam_type='constant')
-    fbeam_constant = beam.get_fbeam(x=xvals)
+    beam_profile = BeamConstant(J=0.001)
+    fbeam_constant = beam_profile(xvals)
 
     # Gaussian beam
-    beam.init_beam_profile(beam_type='Gaussian')
-    fbeam_Gaussian = beam.get_fbeam(x=xvals, I=0.92e-13)
+    beam_profile = BeamGaussian(I=0.92e-13)
+    fbeam_Gaussian = beam_profile(xvals)
 
     # Error function beam
-    beam.init_beam_profile(beam_type='error function')
-    fbeam_error = beam.get_fbeam(x=xvals, I=1e-11)
+    beam_profile = BeamError(I=1e-11)
+    fbeam_error = beam_profile(xvals)
 
     # Plotting the three different diagrams
     fig, ax = plt.subplots()

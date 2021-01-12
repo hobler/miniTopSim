@@ -10,9 +10,8 @@ function timestep: calculates the timestep for a given time
 import numpy as np
 import mini_topsim.surface 
 import mini_topsim.sputtering as sputter
-from beam import get_fbeam
-
 import parameters as par
+import beam
 
 
 def advance(surface, dtime):
@@ -65,7 +64,7 @@ def get_velocities(ny, x):
     else:
         costheta = abs(ny)
         y = sputter.get_sputter_yield(costheta)
-        fbeam = get_fbeam(x)
+        fbeam = beam.beam_profile(x)
         v = (fbeam * y * costheta) / par.DENSITY
         v = v*1e7  # converting cm/s --> nm/s
         
