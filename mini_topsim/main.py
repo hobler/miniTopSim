@@ -15,8 +15,8 @@ from surface import Surface
 from advance import advance
 from advance import timestep
 import mini_topsim.sputtering as sputter
-import parameters as par
-from beam import init_beam_profile
+import mini_topsim.parameters as par
+from mini_topsim.beam import init_beam_profile
 import plot
 
 

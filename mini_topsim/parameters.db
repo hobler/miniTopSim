@@ -39,6 +39,10 @@ FUN_PEAK_TO_PEAK = (100., None, '''Maximum deflection value of the function in
 TIME_STEP = (1., 'TIME_STEP > 0.',
     '''Width of the time step (s).
     ''')
+TIME_INTEGRATION = ('normal',
+    'TIME_INTEGRATION in [\'normal\', \'vertical\', \'characteristics\']',
+    '''One of three time integration methods.
+    ''' )
 
 [Beam]
 TOTAL_TIME = (float, 'TOTAL_TIME > 0.',

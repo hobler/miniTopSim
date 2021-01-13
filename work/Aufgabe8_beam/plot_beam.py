@@ -22,8 +22,8 @@ filedir = os.path.dirname(__file__)
 codedir = os.path.join(filedir, '..', '..', 'mini_topsim')
 sys.path.insert(0, codedir)
 
-import parameters as par
-from beam import BeamConstant, BeamError, BeamGaussian
+import mini_topsim.parameters as par
+from mini_topsim.beam import BeamConstant, BeamError, BeamGaussian
 
 
 def plot_beam_comparison():

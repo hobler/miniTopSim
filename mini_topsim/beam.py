@@ -36,7 +36,7 @@ It also includes these classes and methods:
 import numpy as np
 from scipy import constants as const
 from scipy import special as sp
-import parameters as par
+import mini_topsim.parameters as par
 
 
 def init_beam_profile():

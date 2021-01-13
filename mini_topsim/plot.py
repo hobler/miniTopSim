@@ -52,6 +52,7 @@ Functions:
 Author: Haberl Alexander
 Part of the miniTopSim Project: https://github.com/hobler/miniTopSim
 '''
+import os
 import sys
 import numpy as np
 import matplotlib.pyplot as plt
