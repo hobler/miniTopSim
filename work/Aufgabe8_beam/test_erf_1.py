@@ -2,8 +2,8 @@
 Test to compare the erf_1 simulation values to a saved erf_1.srf_save file
 
 This script allows user to compare the current simulation of the erf_1.cfg
-with saved values from erf_1.srf_save and utilizes the Gaussian beam profile.
-If the tests fail, an assert statement will be printed out.
+with saved values from erf_1.srf_save and utilizes the error function beam
+profile. If the tests fail, an assert statement will be printed out.
 
 This file contains the following functions:
     *test_run - test the execution of the miniTopSim simulation
