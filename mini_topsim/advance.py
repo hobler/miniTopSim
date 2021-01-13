@@ -10,7 +10,6 @@ function timestep: calculates the timestep for a given time
 import numpy as np
 import mini_topsim.sputtering as sputter
 import scipy.constants as sciconst
-
 import mini_topsim.parameters as par
 
 
@@ -23,9 +22,10 @@ def advance(surface, dtime):
     """
 
     nx, ny = surface.normal_vector()
-    costheta = np.abs(ny)
-    sintheta = np.abs(nx)
-
+    costheta = -ny.copy()
+    # eliminate overhangs
+    costheta = np.where(costheta < 0, 0, costheta)
+    sintheta = nx.copy()
     v, v_deriv = get_velocities(costheta, sintheta)
 
     if par.TIME_INTEGRATION == 'normal':
@@ -38,6 +38,7 @@ def advance(surface, dtime):
         surface.yvals += (-v * costheta + v_deriv * sintheta) * dtime
 
     surface.deloop()
+    surface.eliminate_overhangs()
 
 
 def timestep(dtime, time, end_time):
@@ -82,6 +83,6 @@ def get_velocities(costheta, sintheta):
         v = (f_beam * y * costheta) / par.DENSITY
         v = v*1e7  # converting cm/s --> nm/s
 
-        v_deriv = (1e7*f_beam*y) / par.DENSITY * (-sintheta*y+costheta*y_deriv)
+        v_deriv = (1e7*f_beam) / par.DENSITY * (-sintheta*y+costheta*y_deriv)
 
     return v, v_deriv
