@@ -9,8 +9,9 @@ function timestep: calculates the timestep for a given time
 
 import numpy as np
 import mini_topsim.sputtering as sputter
-import scipy.constants as sciconst
 import mini_topsim.parameters as par
+import mini_topsim.beam as beam
+
 
 
 def advance(surface, dtime):
@@ -22,11 +23,12 @@ def advance(surface, dtime):
     """
 
     nx, ny = surface.normal_vector()
+
     costheta = -ny.copy()
     # eliminate overhangs
     costheta = np.where(costheta < 0, 0, costheta)
     sintheta = nx.copy()
-    v, v_deriv = get_velocities(costheta, sintheta)
+    v, v_deriv = get_velocities(costheta, sintheta, surface.xvals)
 
     if par.TIME_INTEGRATION == 'normal':
         surface.xvals += nx * v * dtime
@@ -57,7 +59,7 @@ def timestep(dtime, time, end_time):
     return dtime if (time + dtime) <= end_time else (end_time - time)
 
 
-def get_velocities(costheta, sintheta):
+def get_velocities(costheta, sintheta, x):
     """
     returns the surface velocities for each point
 
@@ -70,6 +72,8 @@ def get_velocities(costheta, sintheta):
     :param sintheta: the sine of the angle between the surface normal
     and the sputter beam direction (default value None).
 
+    :param x: x-component of the surface
+
     :returns: surface velocity for each surface point
     """
 
@@ -78,7 +82,7 @@ def get_velocities(costheta, sintheta):
         v_deriv = np.zeros_like(v)
     else:
         y, y_deriv = sputter.get_sputter_yield(costheta, sintheta)
-        f_beam = par.BEAM_CURRENT_DENSITY/sciconst.e
+        f_beam = beam.beam_profile(x)
 
         v = (f_beam * y * costheta) / par.DENSITY
         v = v*1e7  # converting cm/s --> nm/s
@@ -86,3 +90,4 @@ def get_velocities(costheta, sintheta):
         v_deriv = (1e7*f_beam) / par.DENSITY * (-sintheta*y+costheta*y_deriv)
 
     return v, v_deriv
+

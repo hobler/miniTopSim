@@ -16,9 +16,9 @@ from advance import advance
 from advance import timestep
 import mini_topsim.sputtering as sputter
 import mini_topsim.parameters as par
-
-
+from mini_topsim.beam import init_beam_profile
 import plot
+
 
 def mini_topsim(config_file = None):
     """
@@ -66,8 +66,10 @@ def mini_topsim(config_file = None):
     dt = par.TIME_STEP
 
     surface = Surface()
-    
-    
+
+    # Initialize beam profile
+    init_beam_profile()
+
     sputter.init_sputtering()
     time = 0
     start_simulation_time = currenttime()
