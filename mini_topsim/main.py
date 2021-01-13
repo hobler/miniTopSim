@@ -15,7 +15,7 @@ from surface import Surface
 from advance import advance
 from advance import timestep
 import mini_topsim.sputtering as sputter
-import parameters as par
+import mini_topsim.parameters as par
 
 
 import plot
