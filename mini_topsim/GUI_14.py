@@ -1,13 +1,14 @@
 from work.Aufgabe14_gui.gui_13 import *
 import tkinter as tk
 import tkinter.ttk as ttk
+import tkinter.tix as tix
 import sys
 import os
 import configparser
 
 tabnames = ['Setup', 'Initial Conditions', 'Numerics', 'Beam', 'Physics', 'Output']
 
-form = tk.Tk()
+form = tix.Tk()
 tabs_frame = ttk.Notebook(form)
 tabs = []
 gui_classes = []
@@ -77,6 +78,15 @@ class GuiNew(Gui):
         self.maintk.geometry('+{}+{}'.format(x_position, y_position))
     
         self.display()
+        print("Entries")
+        print(self.entries)
+        tooltip = tix.Balloon(self.root)
+        for entry in self.entries:
+            print(self.entries[entry]['entry'])
+            print(self.data[entry][2])
+            tooltip.bind_widget(self.entries[entry]['entry'],balloonmsg=self.data[entry][2])
+            print("-")
+        print("----")
         self.root.bind("<<NotebookTabChanged>>",self.onTabSwitch)
         #self.root.pack()
 
