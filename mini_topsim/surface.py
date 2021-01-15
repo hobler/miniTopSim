@@ -281,68 +281,31 @@ class Surface:
         -------
         view factor of the surface
         """
-        # column_stack stacks along the second dimension
-        # vstack stacks along the first dimension
-        # vstack((a,b)).T == column_stack((a,b))
-        nodes = np.column_stack((self.xvals, self.yvals))
-        nodes_n = np.column_stack(self.normal_vector())
 
-        # space for all node-distances
-        # symmetrische Matrix
-        distance = np.zeros((int(nodes.size/2), (int(nodes.size/2))))
-        # Distanz Vektor-Matrix
-        # 2x2 Array mit jeweils einer Liste gefüllt
-        # distance_v[startpunkt][endpunkt] -> Vektor zw. stp. und endp.
-        distance_v = np.zeros((int(nodes.size/2), (int(nodes.size/2))),
-                              dtype=('f8', 2))
-        '''print('distance_v shape', distance_v.shape)
-        print('distance_v[0] shape', distance_v[0].shape)
-        print('distance_v[0][0] shape', distance_v[0][0].shape)
-        print('distance_v[0][0][0] shape', distance_v[0][0][0].shape)
-        print('-_-_-_-_-_-_-_-_-')
-        print('distance_v type: ', type(distance_v))
-        print('distance_v[0] type: ', type(distance_v[0]))
-        print('distance_v[0][0] type: ', type(distance_v[0][0]))
-        print('distance_v[0][0][0] type: ', type(distance_v[0][0][0]))
-        print('distance_v[0][0][0]: ', (distance_v[0][0][0]))'''
-        # Winkel Vektor-Matrix
-        # 2x2 Array mit jeweils einer Liste gefüllt
-        # Subarray -> [cos(alpha), cos(beta)]
-        # cosines[startpunkt][endpunkt] -> gibt zugehörige Winkel
-        cosines = np.zeros((int(nodes.size/2), (int(nodes.size/2))))
+        x_strech = np.broadcast_to(self.xvals,
+                                    shape=(self.xvals.size, self.xvals.size))
+        x_strech_transpose = x_strech.T
+        x_distances = x_strech_transpose - x_strech
 
-        # Iteration über jeden Punkt und Berechnung der Distanzen
-        for j, node_j in enumerate(nodes):
-            for i, node_i in enumerate(nodes):  # make i start at > j
-                if i < j:  # nur obere Dreiecksmatrix muss berechnet werden
-                    continue
+        y_strech = np.broadcast_to(self.yvals,
+                                   shape=(self.yvals.size, self.yvals.size))
+        y_strech_transpose = y_strech.T
+        y_distances = y_strech_transpose - y_strech
 
-                vector = node_i - node_j
+        distance = np.sqrt(x_distances*x_distances+y_distances*y_distances)
+        normals = self.normal_vector()
+        cosines = -np.divide(normals[0] * x_distances
+                           + normals[1] * y_distances, distance,
+                           out=np.zeros_like(x_distances),
+                           where=distance != 0).T
 
-                distance_v[j][i] = vector  # obere Dreiecksmatrix
-                distance_v[i][j] = -vector  # untere
-                # sqrt(delta_x^2+delta_y^2)
-                dist = np.sqrt(np.sum(np.square(vector)))
-
-                distance[j][i] = dist  # Werte werden hier gleich in obere und
-                distance[i][j] = dist  # untere Dreiecksmatrix geschrieben.
-                # Diagonale ist Distanz = 0
-
-            # Winkelberechnung: cos(phi) = skalarprodukt(u,v)/(|u|*|v|)
-            # obere  Dreiecksmatrix -> cos(alpha)
-            # untere Dreiecksmatrix -> cos(beta)
-            # @ -> Matrix-Multiplikation
-            # out -> defaultvalue (0), wenn where Bedingung nicht erfüllt
-            #     -> Greift wenn Start- und Endnode gleich sind
-            cosines[j] = np.divide(
-                distance_v[j] @ nodes_n[j], distance[j],
-                out=np.zeros_like(distance[j]),
-                where=distance[j] != 0)
-
-        # roll -> shift des Arrays (C like gespeichert) Siehe Doc
+        # roll -> shift des Arrays "nach rechts/links" (C like gespeichert),
+        #         siehe Doc
+        # delta_l -> Mittelwert der Abstände zu den Nachbarknoten
         # Frage, geht das schneller?
         delta_l = np.diag(np.roll(distance, 1) + np.roll(distance, -1)) / 2
 
+        # Mit Maske möglich
         v_factor = np.divide(
                         np.multiply(cosines.T, cosines,
                                     out=np.zeros_like(cosines),
