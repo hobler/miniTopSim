@@ -280,7 +280,7 @@ class Surface:
         -------
         view factor of the surface
         """
-
+        # meshgrid anschauen
         x_strech = np.broadcast_to(self.xvals,
                                     shape=(self.xvals.size, self.xvals.size))
         x_strech_transpose = x_strech.T

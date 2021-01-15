@@ -11,7 +11,7 @@ import numpy as np
 import mini_topsim.sputtering as sputter
 import mini_topsim.beam as beam
 import scipy.constants as sciconst
-import parameters as par
+import mini_topsim.parameters as par
 
 
 def advance(surface, dtime):
@@ -28,7 +28,8 @@ def advance(surface, dtime):
     # eliminate overhangs
     costheta = np.where(costheta < 0, 0, costheta)
     sintheta = nx.copy()
-    v, v_deriv = get_velocities(costheta, sintheta, surface.xvals)
+
+    v, v_deriv = get_velocities(surface)
 
     if par.TIME_INTEGRATION == 'normal':
         surface.xvals += nx * v * dtime
@@ -87,13 +88,14 @@ def get_velocities(surface):
         v_deriv = np.zeros_like(v)
     elif par.REDEP is True:
         y = sputter.get_sputter_yield(costheta)
-        f_sput = (par.BEAM_CURRENT_DENSITY / sciconst.e * y * costheta)
+        f_sput = (par.BEAM_CURRENT_DENSITY / sciconst.e * y[0] * costheta)
         f_redep = surface.view_factor() @ f_sput
         v = 1e7 * (f_sput - f_redep) / par.DENSITY
+        v_deriv = np.zeros_like(v)
     else:
         sintheta = nx.copy()
         y, y_deriv = sputter.get_sputter_yield(costheta, sintheta)
-        f_beam = beam.beam_profile(surface.x)
+        f_beam = beam.beam_profile(surface.xvals)
 
         v = (f_beam * y * costheta) / par.DENSITY
         v = v*1e7  # converting cm/s --> nm/s
