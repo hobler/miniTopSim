@@ -89,10 +89,12 @@ class Gui:
         cp = configparser.ConfigParser()
         cp.optionxform = str
         cp.read(self.parameter_file)
-        #print(cp.sections())
+
+        ###################################################################################
+        # Aufgabe 14 Bugfix
         if 'Beam' in cp:
             cp['Beam']['TOTAL_TIME'] = cp['Beam']['TOTAL_TIME'].replace("float", "0.0")
-
+        ###################################################################################
         for possible_section in cp.sections():
             possible_sections.append(possible_section)
             
@@ -108,16 +110,13 @@ class Gui:
             value = list(eval(cp[self.section][option]))
             data_from_file[option] = value
             globals()[option] = value[0]
-        print(data_from_file)
         if len(data_from_file) == 0:
             print('The given section \"{}\" doesn\'t contain any data!'.format(
                                                                 self.section))
             sys.exit()
-        print(data_from_file)
         return data_from_file
   
     def display(self):
-        print("display")
         """
         This function sets the grid layout and the basic visualisation.
         
