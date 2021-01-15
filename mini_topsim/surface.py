@@ -8,14 +8,13 @@ includes function
 """
 import numpy as np
 import matplotlib.pyplot as plt
-import os
 import math
 import time
 import init_surface as init
 from numpy import arccos, dot, pi, cross
 from numpy.linalg import norm
 
-import parameters as par
+import mini_topsim.parameters as par
 
 
 class Surface:
@@ -37,7 +36,7 @@ class Surface:
         """
         calculates the normal vectors in every point of the surface
 
-        calculates the vector between the nearest neigbours of the point
+        calculates the vector between the nearest neighbours of the point
         and returns the normal vector of it
 
         :returns: x Values, y Values of the normal vectors
@@ -51,7 +50,7 @@ class Surface:
         dx[-1] = self.xvals[-1] - self.xvals[-2]
         dy[-1] = self.yvals[-1] - self.yvals[-2]
 
-        # right neigbour - left neigbour
+        # right neighbour - left neighbour
         dy[1:-1] = self.yvals[2:] - self.yvals[:-2]
         dx[1:-1] = self.xvals[2:] - self.xvals[:-2]
 
@@ -325,7 +324,7 @@ def point2segment_dist(p, seg):
     If point projects onto the line segment, the orthogonal distance
     from the point to the line is returned.
     If the point does not project to the line segment, the distances
-    to both segment endpoints is calculated and take the shortest 
+    to both segment endpoints is calculated and take the shortest
     distance is returned.
 
     :param point: Numpy array p=[x,y]
@@ -340,6 +339,6 @@ def point2segment_dist(p, seg):
                         (end - start) / norm(end - start)), 8)) > pi / 2:
         return norm(p - start)
     if arccos(round(dot((p - end) / norm(p - end),
-                        (start - end) / norm(start - end)), 8)) > pi / 2:
+        (start - end) / norm(start - end)), 8)) > pi / 2:
         return norm(p - end)
     return norm(cross(start - end, start - p)) / norm(end - start)

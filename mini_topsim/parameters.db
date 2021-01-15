@@ -29,7 +29,7 @@ FUN_XMIN = (-25., 'FUN_XMIN >= XMIN',
     For XMIN < x < FUN_XMIN the surface function is assumed to be constant
     and equal to its value at x = FUN_XMIN.
     ''')
-FUN_XMAX = (-25., 'FUN_XMAX <= XMAX and FUN_XMAX > FUN_XMIN',
+FUN_XMAX = (25., 'FUN_XMAX <= XMAX and FUN_XMAX > FUN_XMIN',
     '''Upper boundary (nm) of initial surface function.
     For FUN_XMAX < x < XMAX the surface function is assumed to be constant
     and equal to its value at x = FUN_XMAX.
@@ -42,6 +42,10 @@ FUN_PEAK_TO_PEAK = (100., None, '''Maximum deflection value of the function in
 TIME_STEP = (1., 'TIME_STEP > 0.',
     '''Width of the time step (s).
     ''')
+TIME_INTEGRATION = ('normal',
+    'TIME_INTEGRATION in [\'normal\', \'vertical\', \'characteristics\']',
+    '''One of three time integration methods.
+    ''' )
 
 [Beam]
 TOTAL_TIME = (float, 'TOTAL_TIME > 0.',
@@ -50,6 +54,26 @@ TOTAL_TIME = (float, 'TOTAL_TIME > 0.',
 BEAM_CURRENT_DENSITY = (0.001, 'BEAM_CURRENT_DENSITY > 0',
     '''Beam current density J = F_beam*e; F_beam = Beam flux density;
     e = elementary charge
+    ''')
+BEAM_TYPE = ('constant', 'BEAM_TYPE in ("constant", "Gaussian", \
+    "error function")',
+    '''Model of the beam profile - selection between 'constant', 'Gaussian'
+    and 'error function'.
+    ''')
+BEAM_CURRENT = (1e-9, 'BEAM_CURRENT > 0',
+    '''Beam current I for non-constant beam profiles in A.
+    ''')
+SCAN_WIDTH = (1e3, 'SCAN_WIDTH > 0',
+    '''Scan width Wz in z-direction for non-constant beam profiles in nm.
+    ''')
+BEAM_CENTER = (0, None,
+    '''Beam center xc for non-constant beam profiles.
+    ''')
+FWHM = (100, 'FWHM > 0',
+    '''Full Width at half maximum for non-constant beam profiles in nm.
+    ''')
+ERF_BEAM_WIDTH = (1e3, 'ERF_BEAM_WIDTH > 0',
+    '''Scan width Wx in x-direction for error function profiles in nm.
     ''')
 
 [Physics]
