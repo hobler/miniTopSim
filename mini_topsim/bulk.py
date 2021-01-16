@@ -1,89 +1,77 @@
 '''
-Description: Initialization of the corresponding surface. There is defined a class Gauss, 
-which provides a callable object for calculating the Gaussian function.
+Description: Implementation of the Bulk class with methods for writing and plotting the dopant distribution.
 
 Classes:
-		Gauss: provides a callable object for calculating the Gaussian function.
-
+		Bulk: provides plotting and writing functions for the object of this class
+		
 Functions:
-
-	__init__(self): Initializes all parameters of the class Gauss.
-	__call__(self): Calculates the Gaussian function.
-
-Additionally this module can be used as a script:
-	USAGE: $ python3 implant.py [name of .cfg file]
-	where: .cfg file defines the implantation for the corresponding surface
+	write_bulk(): Writes the dopant distribution for the corresponding node coordinates to an .out file.
+	plot_bulk():  Plots dopant concentration on the nodes of a regular lattice
 
 Author: Omerasevic Armin (01325962)
 Part of the miniTopSim Project: https://github.com/hobler/miniTopSim 
 '''
-import sys
+import os
 import matplotlib.pyplot as plt
 import numpy as np
-import parameters as par
-from init_surface import init_surface
-from bulk import Bulk
+import mini_topsim.parameters as par
+
+filedir = os.path.dirname(__file__)
+codedir = os.path.join(filedir, '..', 'work', 'Aufgabe16_implant/')
 
 
-class Gauss:
+class Bulk:
 	'''
-	Provides a callable object for calculating the Gaussian function.
+	Provides the functions for plotting a dopant distribution of a corresponding surface
+	as well as saving a class Bulk data to an .out file.
 	'''
-	def __init__(self):
+	def __init__(self, x, y, conc):
 		'''
 		Initializes all class parameters.
 		'''
-		self.x_grid = np.arange(par.XMIN, par.XMAX + 1, par.BULK_DX)
-		self.y_surface = init_surface(self.x_grid)
-		gridline_min_surface = int(np.amin(self.y_surface)/par.BULK_DY - 1) * par.BULK_DY
-		self.y_grid = np.arange(gridline_min_surface - par.RP - 3*par.DRP, 0 + 1, par.BULK_DY)		
-		
-	def __call__(self):	
-		'''
-		Calculates the Gaussian function.
-		We use it since the probability distribution for the end point of the ion trajectories 
-		can be approximately described by a Gaussian function.
-		
-		Returns: nodes of a regular lattice for which the dopant concentration should be calculated and
-		the dopant concentration for every node.
-			
-		'''
-		surface_dict = dict(zip(self.x_grid, self.y_surface))
-		prefactor = par.DOSE*(1e-14)/(2*np.pi*par.DRP*par.DRLAT)
-		Delta_R_p_pow = 2*par.DRP**2
-		Delta_R_lat_pow = 2*par.DRLAT**2
-		
-		conc = np.zeros(shape=(len(self.x_grid),len(self.y_grid)))
-		for i, x_koor in enumerate(self.x_grid):  
-			for j, y_koor in enumerate(self.y_grid):
-				conc[i][j] = 0
-				if y_koor < surface_dict[x_koor]:
-					for psi_i in np.arange(x_koor - 3*par.DRLAT, x_koor + 3*par.DRLAT + 1, par.BULK_DX):  #Fehler in der Angabe?
-						if psi_i >= par.XMIN and psi_i <= par.XMAX:                     
-							conc[i][j]+=np.exp(((-(y_koor-surface_dict[psi_i]-par.RP) ** 2)/Delta_R_p_pow)- \
-							(((x_koor-psi_i) ** 2)/Delta_R_lat_pow))*par.BULK_DX
-				conc[i][j]*=prefactor*100
-				
-		conc = np.transpose(conc)	
-		return self.x_grid, self.y_grid, conc
+		self.x = x
+		self.y = y
+		self.conc = conc
+		self.save_data_form = codedir + f"{par.INITIAL_SURFACE_TYPE.lower()}"
 
-if __name__ == '__main__':
-	'''
-	This module can be used as a script to plot dopant concentration on the nodes of a regular lattice,
-	to write the dopant distribution of the nodes to a file or to save the plot as .png file if needed.
+	def write_bulk(self):
+		'''
+		Writes the dopant distribution for the corresponding node coordinates to an .out file.
+		'''
+		with open(codedir + f"/Bulk_{par.INITIAL_SURFACE_TYPE}.out", 'w') as bulk_out_file:
+			bulk_out_file.write("Dopant distribution\nX\t\tY\t\t\tconc\n")
+			for x in self.x:
+				for y, conc in zip(self.y, np.asarray(self.conc).reshape(-1)):
+					bulk_out_file.write(f"{x}\t{y}\t{conc}\n")				
+					
+	# def plot_bulk(self, save_fig=False):
+		# plt.contourf(self.x, self.y, self.conc)
+		# plt.colorbar()
+		# plt.title("Dopant distribution")
+		# plt.xlabel("x coordinate of a lattice node")
+		# plt.ylabel("y coordinate of a lattice node")
+		# if save_fig:
+			# plt.savefig(f"{self.save_data_form}.png")
+		# else:
+			# plt.show()
 
-	USAGE: $ python implant.py [name of .cfg file]
-	'''
-	if(len(sys.argv) == 2):
-		config_file = sys.argv[1]
-		if config_file.endswith(".cfg"):
-			par.load_parameters(config_file)
-			gauss = Gauss()
-			x, y, conc = gauss()
-			bulk_obj = Bulk(x, y, conc)
-			bulk_obj.write_bulk()
-			bulk_obj.plot_bulk()
+	def plot_bulk(self, save_fig=False):
+		'''
+		Plots dopant concentration on the nodes of a regular lattice with contour lines at concentrations 
+		0.1, 0.2, ... 0.9 of the maximum occurring concentration.
+	
+		Arg: 
+			save_fig: Decides between plotting the concentration of the nodes and saving of the plot as .jpg image
+		'''	
+		norm_conc = self.conc/np.amax(self.conc)
+		doping_conc = np.arange(0.1, 1.0, 0.1)
+		plt.contourf(self.x, self.y, norm_conc, doping_conc, cmap='jet')
+		plt.colorbar()
+		plt.title("Dopant distribution")
+		plt.xlabel("x coordinate of a lattice node")
+		plt.ylabel("y coordinate of a lattice node")
+		if save_fig:
+			plt.savefig(f"{self.save_data_form}.png")
 		else:
-			sys.exit("Wrong config file format .cfg!")
-	else:
-		sys.exit("No Config file passed!")
+			plt.show()		
+		

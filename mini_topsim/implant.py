@@ -20,7 +20,7 @@ Part of the miniTopSim Project: https://github.com/hobler/miniTopSim
 import sys
 import matplotlib.pyplot as plt
 import numpy as np
-import parameters as par
+import mini_topsim.parameters as par
 from init_surface import init_surface
 from bulk import Bulk
 
