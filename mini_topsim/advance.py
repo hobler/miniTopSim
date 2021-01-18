@@ -82,6 +82,7 @@ def get_velocities(surface):
 
     nx, ny = surface.normal_vector()
     costheta = -ny.copy()
+    costheta = np.where(costheta < 0, 0, costheta)
 
     if par.ETCHING is True:
         v = np.full_like(costheta, par.ETCH_RATE)
@@ -102,4 +103,3 @@ def get_velocities(surface):
         v_deriv = (1e7*f_beam) / par.DENSITY * (-sintheta*y+costheta*y_deriv)
 
     return v, v_deriv
-

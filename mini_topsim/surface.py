@@ -10,7 +10,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import math
 import time
-import init_surface as init
+import mini_topsim.init_surface as init
 from numpy import arccos, dot, pi, cross
 from numpy.linalg import norm
 
