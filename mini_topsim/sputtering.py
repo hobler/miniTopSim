@@ -68,20 +68,26 @@ class Sputter_yield_table():
     def __init__(self, filename):
         filepath = os.path.join(os.path.dirname(__file__), 'tables/', filename)
         print(filepath)
-        data = np.genfromtxt(filepath, skip_header = 1)
-        tiltvals = data[:,0]
-        yieldvals = data[:,1]
+        data = np.genfromtxt(filepath, skip_header=1)
+        tiltvals = data[:, 0]
+        yieldvals = data[:, 1]
         self.yfunc = interp1d(tiltvals, yieldvals)
 
-    def __call__(self, costheta):
+    def __call__(self, costheta, sintheta=None):
         """
         interpolates sputter yields from given data in a file
 
         :param costheta: the cosine of the angle between the surface normal 
         and the sputter beam direction
+        :param sintheta: the sine of the angle between the surface normal
+        and the sputter beam direction (default value None).
 
         :returns: Sputter yield Y
         """
-
-        theta = np.arccos(costheta)
+        if sintheta is not None:
+            # if sintheta available, calculate with it because
+            # sine is injective in the relevant interval [-pi/2,pi/2]
+            theta = np.arcsin(sintheta)
+        else:
+            theta = np.arccos(costheta)
         return self.yfunc(theta)

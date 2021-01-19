@@ -192,7 +192,7 @@ class Surface:
         points witch should be removed. Flagging them makes it possible to
         enter the new points in the right position.
 
-        :param result_bool: contains the information if there was an
+        :param _result_bool: contains the information if there was an
         intersection or not as bool value
         """
 
@@ -275,10 +275,11 @@ class Surface:
     def view_factor(self):
         """
         calculates the view factor of a surface.
+
         point-to-point visibility considered according to assignment
-        Returns
-        -------
-        view factor of the surface
+
+        :returns: view factor and its derivative for each surface point
+        in a tuple
         """
         # meshgrid anschauen
         x_strech = np.broadcast_to(self.xvals,
@@ -292,11 +293,26 @@ class Surface:
         y_distances = y_strech_transpose - y_strech
 
         distance = np.sqrt(x_distances*x_distances+y_distances*y_distances)
-        normals = self.normal_vector()
-        cosines = -np.divide(normals[0] * x_distances
-                           + normals[1] * y_distances, distance,
+        nx, ny = self.normal_vector()
+        # Skalarprodukt nx*x+ny*y/(dist)
+        cosines = -np.divide(nx * x_distances + ny * y_distances, distance,
                            out=np.zeros_like(x_distances),
                            where=distance != 0).T
+
+        ###
+        #cross = np.cross(np.column_stack((nx, ny)), np.column_stack((
+       #     x_distances, y_distances)))
+       # sines = -np.divide(np.linalg.norm(cross, axis=2),
+        #                   distance,
+        #                     out=np.zeros_like(x_distances),
+        #                     where=distance != 0).T
+        ###
+
+        angles = np.arccos(cosines)
+        # angles = np.copysign(angles, x_distances)
+        angles = np.triu(angles) - np.tril(angles)
+        sines = np.sin(angles)
+
 
         # roll -> shift des Arrays "nach rechts/links" (C like gespeichert),
         #         siehe Doc
@@ -314,7 +330,22 @@ class Surface:
                         out=np.zeros_like(cosines.T * cosines),
                         where=distance != 0) * delta_l
 
-        return v_factor
+        np.savetxt('view.txt', np.multiply(cosines.T, cosines), fmt='%.4f')
+
+        v_factor_deriv = np.divide(
+                        np.multiply(cosines.T, sines,   # vielleicht umgekehrt
+                                    out=np.zeros_like(cosines),
+                                    where=np.logical_and(cosines > 0,
+                                                         cosines.T > 0)),
+                        2 * distance,
+                        out=np.zeros_like(cosines.T * cosines),
+                        where=distance != 0) * delta_l
+
+        np.savetxt('view_d.txt', np.multiply(cosines.T, sines), fmt='%.4f')
+        v_factor_deriv = np.zeros_like(v_factor)
+        # berechnen als cos(alpha) * (+/-sin(beta)) * delta_l / (2*distance)
+
+        return v_factor, v_factor_deriv
 
 
 def point2segment_dist(p, seg):

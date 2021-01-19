@@ -19,16 +19,10 @@ def advance(surface, dtime):
     calculates the movement of the surface for a timestep dtime
 
     :param surface: surface that is being calculated
-    :param dtime: timstep of the calculation
+    :param dtime: timestep of the calculation
     """
 
     nx, ny = surface.normal_vector()
-
-    costheta = -ny.copy()
-    # eliminate overhangs
-    costheta = np.where(costheta < 0, 0, costheta)
-    sintheta = nx.copy()
-
     v, v_deriv = get_velocities(surface)
 
     if par.TIME_INTEGRATION == 'normal':
@@ -37,6 +31,9 @@ def advance(surface, dtime):
     elif par.TIME_INTEGRATION == 'vertical':
         surface.yvals += v / ny * dtime
     elif par.TIME_INTEGRATION == 'characteristics':
+        costheta = -ny
+        costheta = np.where(costheta < 0, 0, costheta)  # eliminate overhangs
+        sintheta = nx
         surface.xvals += (v * sintheta + v_deriv * costheta) * dtime
         surface.yvals += (-v * costheta + v_deriv * sintheta) * dtime
 
@@ -77,29 +74,42 @@ def get_velocities(surface):
 
     :param surface: surface object
 
-    :returns: surface velocity for each surface point
+    :returns: surface velocity and its derivative for each surface point
+    in a tuple
     """
 
     nx, ny = surface.normal_vector()
-    costheta = -ny.copy()
-    costheta = np.where(costheta < 0, 0, costheta)
 
     if par.ETCHING is True:
-        v = np.full_like(costheta, par.ETCH_RATE)
+        v = np.full_like(ny, par.ETCH_RATE)
         v_deriv = np.zeros_like(v)
-    elif par.REDEP is True:
-        y = sputter.get_sputter_yield(costheta)
-        f_sput = (par.BEAM_CURRENT_DENSITY / sciconst.e * y[0] * costheta)
-        f_redep = surface.view_factor() @ f_sput
-        v = 1e7 * (f_sput - f_redep) / par.DENSITY
-        v_deriv = np.zeros_like(v)
-    else:
-        sintheta = nx.copy()
-        y, y_deriv = sputter.get_sputter_yield(costheta, sintheta)
-        f_beam = beam.beam_profile(surface.xvals)
+        return v, v_deriv
 
-        v = (f_beam * y * costheta) / par.DENSITY
-        v = v*1e7  # converting cm/s --> nm/s
-        v_deriv = (1e7*f_beam) / par.DENSITY * (-sintheta*y+costheta*y_deriv)
+    costheta = -ny
+    costheta = np.where(costheta < 0, 0, costheta)
+    sintheta = nx
+
+    y, y_deriv = sputter.get_sputter_yield(costheta, sintheta)
+
+    n = par.DENSITY
+
+    f_beam = beam.beam_profile(surface.xvals)
+    f_sput = f_beam * costheta * y
+    f_sput_deriv = f_beam * (-sintheta * y + costheta * y_deriv)
+    # f_beam ortsabhängig?
+
+    if par.REDEP is True:
+        v_factor, v_factor_deriv = surface.view_factor()
+        f_redep = v_factor @ f_sput    # matrix multiplication '@'
+        # assert f_redep.ndim == 1
+        f_redep_deriv = v_factor_deriv @ f_sput + v_factor @ f_sput_deriv
+        v = 1e7 * (f_sput - f_redep) / n
+        v_deriv = 1e7 * (f_sput_deriv - f_redep_deriv) / n
+
+    else:
+        # f_beam = beam.beam_profile(surface.xvals)
+        # f_sput = f_beam * y * costheta
+        v = 1e7 * f_sput / n
+        v_deriv = 1e7 * f_sput_deriv / n
 
     return v, v_deriv
