@@ -96,7 +96,6 @@ def get_velocities(surface):
     f_beam = beam.beam_profile(surface.xvals)
     f_sput = f_beam * costheta * y
     f_sput_deriv = f_beam * (-sintheta * y + costheta * y_deriv)
-    # f_beam ortsabhängig?
 
     if par.REDEP is True:
         v_factor, v_factor_deriv = surface.view_factor()

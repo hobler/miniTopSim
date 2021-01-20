@@ -292,27 +292,17 @@ class Surface:
         y_strech_transpose = y_strech.T
         y_distances = y_strech_transpose - y_strech
 
+        # np.savetxt('x.txt', x_distances, fmt='%.3f')
+        # np.savetxt('y.txt', y_distances, fmt='%.3f')
+
         distance = np.sqrt(x_distances*x_distances+y_distances*y_distances)
         nx, ny = self.normal_vector()
-        # Skalarprodukt nx*x+ny*y/(dist)
+
         cosines = -np.divide(nx * x_distances + ny * y_distances, distance,
                            out=np.zeros_like(x_distances),
                            where=distance != 0).T
 
-        ###
-        #cross = np.cross(np.column_stack((nx, ny)), np.column_stack((
-       #     x_distances, y_distances)))
-       # sines = -np.divide(np.linalg.norm(cross, axis=2),
-        #                   distance,
-        #                     out=np.zeros_like(x_distances),
-        #                     where=distance != 0).T
-        ###
-
-        angles = np.arccos(cosines)
-        # angles = np.copysign(angles, x_distances)
-        angles = np.triu(angles) - np.tril(angles)
-        sines = np.sin(angles)
-
+        # np.savetxt('cos.txt', cosines, fmt='%.3f')
 
         # roll -> shift des Arrays "nach rechts/links" (C like gespeichert),
         #         siehe Doc
@@ -320,31 +310,56 @@ class Surface:
         # Frage, geht das schneller?
         delta_l = np.diag(np.roll(distance, 1) + np.roll(distance, -1)) / 2
 
+        # print(cosines[60][30], cosines[30][60])
+        # print(x_distances[60][30], x_distances[30][60])
+        # print(y_distances[60][30], y_distances[30][60])
+
+        # cos_beta_ij == cosines, cos_alpha_ij == cosines.T (== cos_beta_ji)
+        cos_a = cosines.T
+        cos_b = cosines
+
         # Mit Maske möglich
         v_factor = np.divide(
-                        np.multiply(cosines.T, cosines,
+                        np.multiply(cos_a, cos_b,
                                     out=np.zeros_like(cosines),
-                                    where=np.logical_and(cosines > 0,
-                                                         cosines.T > 0)),
+                                    where=np.logical_and(cos_b > 0,
+                                                         cos_a > 0)),
                         2 * distance,
-                        out=np.zeros_like(cosines.T * cosines),
+                        out=np.zeros_like(cos_a * cos_b),
                         where=distance != 0) * delta_l
 
-        np.savetxt('view.txt', np.multiply(cosines.T, cosines), fmt='%.4f')
+        # np.savetxt('view.txt', v_factor, fmt='%.3f')
 
+        # cos_b values in lower triangle
+        # sin_b = np.arccos(np.tril(cosines))
+        # sin_b = np.copysign(sin_b, np.tril(x_distances))  # restore lost sign
+        # cos_a = np.triu(cosines)    # cos_a values in lower triangle
+        # cos_a_sin_b = cos_a + sin_b  # +/- sin_b?
+
+        beta = np.arccos(cos_b)
+        beta = np.copysign(beta, x_distances)   # notwendig? TODO
+        sin_b = np.sin(beta)
+
+        # print('\n')
+        # print(cos_a_sin_b[60][30], cos_a_sin_b[30][60])
+
+        # berechnen als cos_alpha * (+/-sin_beta) * delta_l / (2*distance)
         v_factor_deriv = np.divide(
-                        np.multiply(cosines.T, sines,   # vielleicht umgekehrt
+                        np.multiply(cos_a, sin_b,
                                     out=np.zeros_like(cosines),
-                                    where=np.logical_and(cosines > 0,
-                                                         cosines.T > 0)),
+                                    where=np.logical_and(cos_b > 0,
+                                                         cos_a > 0)),
                         2 * distance,
-                        out=np.zeros_like(cosines.T * cosines),
+                        out=np.zeros_like(cos_a * cos_b),
                         where=distance != 0) * delta_l
 
-        np.savetxt('view_d.txt', np.multiply(cosines.T, sines), fmt='%.4f')
-        v_factor_deriv = np.zeros_like(v_factor)
-        # berechnen als cos(alpha) * (+/-sin(beta)) * delta_l / (2*distance)
-
+        # np.savetxt('view_d.txt', v_factor_deriv, fmt='%.3f')
+        # print(v_factor_deriv[30][60], v_factor_deriv[60][30])
+        # v_factor_deriv = np.zeros_like(v_factor)
+        # print('\n')
+        # print(v_factor[30][60], cosines[30][60])
+        # print(delta_l[60])
+        # print(2*distance[30][60])
         return v_factor, v_factor_deriv
 
 
@@ -358,8 +373,8 @@ def point2segment_dist(p, seg):
     to both segment endpoints is calculated and take the shortest
     distance is returned.
 
-    :param point: Numpy array p=[x,y]
-    :param line: list of segment endpoints [pstart, pend]=[[x1,y1],[x2,y2]]
+    :param p: Numpy array p=[x,y]
+    :param seg: list of segment endpoints [pstart, pend]=[[x1,y1],[x2,y2]]
     :return: The minimum distance between point and surface segment.
     """
     start = seg[0]
