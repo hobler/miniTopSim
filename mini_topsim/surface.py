@@ -337,7 +337,7 @@ class Surface:
         # cos_a_sin_b = cos_a + sin_b  # +/- sin_b?
 
         beta = np.arccos(cos_b)
-        beta = np.copysign(beta, x_distances)   # notwendig? TODO
+        # beta = np.copysign(beta, x_distances)
         sin_b = np.sin(beta)
 
         # print('\n')
@@ -350,7 +350,7 @@ class Surface:
                                     where=np.logical_and(cos_b > 0,
                                                          cos_a > 0)),
                         2 * distance,
-                        out=np.zeros_like(cos_a * cos_b),
+                        out=np.zeros_like(cos_a * sin_b),
                         where=distance != 0) * delta_l
 
         # np.savetxt('view_d.txt', v_factor_deriv, fmt='%.3f')
