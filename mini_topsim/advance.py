@@ -2,7 +2,8 @@
 Implements the functions to calculate the surface movement
 
 function advance: calculates the movement of the surface
-function timestep: calculates the timestep for a given time  
+function timestep: calculates the timestep for a given time
+function get_velocities: calculates the the surface velocities
 
 """
 
@@ -17,6 +18,9 @@ import mini_topsim.parameters as par
 def advance(surface, dtime):
     """
     calculates the movement of the surface for a timestep dtime
+
+    Depending on the selected type of time integration method, the surface
+    points are calculated accordingly
 
     :param surface: surface that is being calculated
     :param dtime: timestep of the calculation
@@ -66,13 +70,7 @@ def get_velocities(surface):
     velocity depending on the sputter flux density.
     REDEP allows: accounting for redeposition
 
-    costheta: the cosine of the angle between the surface normal
-    and the sputter beam direction.
-
-    sintheta: the sine of the angle between the surface normal
-    and the sputter beam direction (default value None).
-
-    :param surface: surface object
+    :param surface: surface object of class Surface
 
     :returns: surface velocity and its derivative for each surface point
     in a tuple
@@ -106,8 +104,6 @@ def get_velocities(surface):
         v_deriv = 1e7 * (f_sput_deriv - f_redep_deriv) / n
 
     else:
-        # f_beam = beam.beam_profile(surface.xvals)
-        # f_sput = f_beam * y * costheta
         v = 1e7 * f_sput / n
         v_deriv = 1e7 * f_sput_deriv / n
 

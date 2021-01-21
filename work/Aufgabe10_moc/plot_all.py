@@ -1,7 +1,5 @@
 """
-Template for calling miniTopSim.
-
-Feel free to copy, but do not modify the original!
+Script to plot all necessary simulations
 """
 
 from mini_topsim.plot import plot
