@@ -1,7 +1,19 @@
 import tkinter.tix as tix
 
-from mini_topsim.gui_13 import *
 
+
+import sys
+import os
+import configparser
+import tkinter as tk
+import tkinter.ttk as ttk
+
+from tkinter import messagebox
+from functools import partial
+from PIL import ImageTk, Image
+from tkinter import filedialog
+
+from mini_topsim.gui_13 import Gui
 
 tk_root = None
 tk_notebook = None
@@ -39,7 +51,6 @@ class GuiNew(Gui):
         self.root.geometry = maintk.geometry
         self.maintk.protocol('WM_DELETE_WINDOW', self.exit_window)
 
-        # GUI13
         self.section = section
         self.parameter_file = parameter_file
         self.button_file = button_file
@@ -197,7 +208,7 @@ def main():
     tabnames.extend(cp.sections())
     print(tabnames)
 
-    for i in range(6):
+    for i in range(len(tabnames)):
         tabs.append(ttk.Frame(tk_notebook))
         tk_notebook.add(tabs[i], text=tabnames[i])
         gui_classes.append(GuiNew(tk_root, tabs[i], tabnames[i], path_to_parameter_file, path_to_button_file, path_to_cfg_file,path_to_init_file))

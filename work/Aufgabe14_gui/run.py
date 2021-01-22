@@ -6,4 +6,4 @@ sys.path.insert(0, codedir)
 
 from gui import main
 
-window = main()
+main()
