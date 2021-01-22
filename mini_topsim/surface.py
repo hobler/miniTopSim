@@ -8,6 +8,8 @@ includes function
 """
 import numpy as np
 import matplotlib.pyplot as plt
+import math
+import time
 import init_surface as init
 from numpy import arccos, dot, pi, cross
 from numpy.linalg import norm
@@ -19,14 +21,14 @@ class Surface:
 
     def __init__(self):
         """
-        initializes the x and y-Values with the init_surface module
+        Initializes the x and y-Values with the init_surface module
         """
-        if par.INITIAL_SURFACE_TYPE == 'File':          
+        if par.INITIAL_SURFACE_TYPE == 'File':
             srf_file = par.INITIAL_SURFACE_FILE
-            self.xvals, self.yvals = init.read_srf_file(srf_file, 
+            self.xvals, self.yvals = init.read_srf_file(srf_file,
                                                         par.TOTAL_TIME)
 
-        else:    
+        else:
             self.xvals = np.arange(par.XMIN, par.XMAX + 1, par.DELTA_X)
             self.yvals = init.init_surface(self.xvals)
 
@@ -84,29 +86,29 @@ class Surface:
                 f"surface: {time} {len(self.xvals)} x-positions y-positions\n")
             for x, y in zip(self.xvals, self.yvals):
                 f.write(f"{x} {y}\n")
-    
+
     def eliminate_overhangs(self):
         """
-        eliminates overhanging structures iteratively
-        """        
-        #from left to right
-        for index in range(0, len(self.xvals)-1):
-            if (self.xvals[index] > self.xvals[index+1] and
-            self.yvals[index] < self.yvals[index+1]):
-                    self.xvals[index+1] = self.xvals[index]
+        Eliminates overhanging structures iteratively
+        """
+        # from left to right
+        for index in range(0, len(self.xvals) - 1):
+            if (self.xvals[index] > self.xvals[index + 1] and
+                    self.yvals[index] < self.yvals[index + 1]):
+                self.xvals[index + 1] = self.xvals[index]
 
-        #from right to left        
-        for index in range(len(self.xvals)-1, 0,-1):
-            if (self.xvals[index] < self.xvals[index-1] and
-            self.yvals[index-1] > self.yvals[index]):
-                self.xvals[index-1] = self.xvals[index]
-
+        # from right to left
+        for index in range(len(self.xvals) - 1, 0, -1):
+            if (self.xvals[index] < self.xvals[index - 1] and
+                    self.yvals[index - 1] > self.yvals[index]):
+                self.xvals[index - 1] = self.xvals[index]
 
     def _update_points(self):
         """updates the points of the Object for further calculations"""
 
         self.points = np.concatenate((self.xvals.reshape((self.xvals.size, 1)),
-                                      self.yvals.reshape((self.xvals.size, 1))),
+                                      self.yvals.reshape(
+                                          (self.xvals.size, 1))),
                                      axis=1)
 
     def _intersections(self, _results):
@@ -119,11 +121,11 @@ class Surface:
         zeroes = np.zeros(_results.shape)
         ones = np.ones(_results.shape)
         first_column = zeroes < _results
-        #print(first_column)
+        # print(first_column)
         second_column = _results < ones
-        #print(second_column)
+        # print(second_column)
         intersection = first_column == second_column
-        #print(intersection)
+        # print(intersection)
         _result_bool = np.logical_and(intersection[:, 0], intersection[:, 1])
         return _result_bool
 
@@ -143,8 +145,9 @@ class Surface:
                 # print('i= {}'.format(i))
                 # print('point = {}'.format(self.points[i]))
                 self._newpoints[k] = self.points[i] + (self.points[i + 1] -
-                                                      self.points[i]) * result[
-                                                                             0]
+                                                       self.points[i]) * \
+                                     result[
+                                         0]
         # print('new points = {}'.format(self._newpoints))
 
     def _setvals(self):
@@ -247,28 +250,73 @@ class Surface:
         """
         distances12 = np.zeros_like(self.xvals)
         distances21 = np.zeros_like(refsrf.xvals)
-        
-        tmp = np.zeros(len(refsrf.xvals)-1)
+
+        tmp = np.zeros(len(refsrf.xvals) - 1)
         for i in range(len(self.xvals)):
             p = [self.xvals[i], self.yvals[i]]
-            for j in range(len(refsrf.xvals)-1):
-                seg = np.asarray([[refsrf.xvals[j], refsrf.yvals[j]], 
-                       [refsrf.xvals[j+1], refsrf.yvals[j+1]]])
+            for j in range(len(refsrf.xvals) - 1):
+                seg = np.asarray([[refsrf.xvals[j], refsrf.yvals[j]],
+                                  [refsrf.xvals[j + 1], refsrf.yvals[j + 1]]])
                 tmp[j] = point2segment_dist(p, seg)
             distances12[i] = min((np.abs(tmp)))
-            
+
         del tmp
-        tmp = np.zeros(len(self.xvals)-1)      
+        tmp = np.zeros(len(self.xvals) - 1)
         for i in range(len(refsrf.xvals)):
             p = [refsrf.xvals[i], refsrf.yvals[i]]
-            for j in range(len(self.xvals)-1):
-                seg = np.asarray([[self.xvals[j], self.yvals[j]], 
-                       [self.xvals[j+1], self.yvals[j+1]]])
+            for j in range(len(self.xvals) - 1):
+                seg = np.asarray([[self.xvals[j], self.yvals[j]],
+                                  [self.xvals[j + 1], self.yvals[j + 1]]])
                 tmp[j] = point2segment_dist(p, seg)
             distances21[i] = min((np.abs(tmp)))
-            
-        return (np.mean(distances12) + np.mean(distances21))/2
-            
+
+        return (np.mean(distances12) + np.mean(distances21)) / 2
+
+    def view_factor(self):
+        """
+        calculates the view factor of a surface.
+        point-to-point visibility considered according to assignment
+        Returns
+        -------
+        view factor of the surface
+        """
+        # meshgrid anschauen
+        x_strech = np.broadcast_to(self.xvals,
+                                    shape=(self.xvals.size, self.xvals.size))
+        x_strech_transpose = x_strech.T
+        x_distances = x_strech_transpose - x_strech
+
+        y_strech = np.broadcast_to(self.yvals,
+                                   shape=(self.yvals.size, self.yvals.size))
+        y_strech_transpose = y_strech.T
+        y_distances = y_strech_transpose - y_strech
+
+        distance = np.sqrt(x_distances*x_distances+y_distances*y_distances)
+        normals = self.normal_vector()
+        cosines = -np.divide(normals[0] * x_distances
+                           + normals[1] * y_distances, distance,
+                           out=np.zeros_like(x_distances),
+                           where=distance != 0).T
+
+        # roll -> shift des Arrays "nach rechts/links" (C like gespeichert),
+        #         siehe Doc
+        # delta_l -> Mittelwert der Abstände zu den Nachbarknoten
+        # Frage, geht das schneller?
+        delta_l = np.diag(np.roll(distance, 1) + np.roll(distance, -1)) / 2
+
+        # Mit Maske möglich
+        v_factor = np.divide(
+                        np.multiply(cosines.T, cosines,
+                                    out=np.zeros_like(cosines),
+                                    where=np.logical_and(cosines > 0,
+                                                         cosines.T > 0)),
+                        2 * distance,
+                        out=np.zeros_like(cosines.T * cosines),
+                        where=distance != 0) * delta_l
+
+        return v_factor
+
+
 def point2segment_dist(p, seg):
     """
     calculates the distance between a point and a surface segment.
@@ -288,9 +336,9 @@ def point2segment_dist(p, seg):
     if all(start == p) or all(end == p):
         return 0
     if arccos(round(dot((p - start) / norm(p - start),
-        (end - start) / norm(end - start)), 8)) > pi / 2:
+                        (end - start) / norm(end - start)), 8)) > pi / 2:
         return norm(p - start)
     if arccos(round(dot((p - end) / norm(p - end),
         (start - end) / norm(start - end)), 8)) > pi / 2:
         return norm(p - end)
-    return norm(cross(start - end, start - p))/norm(end-start)
+    return norm(cross(start - end, start - p)) / norm(end - start)

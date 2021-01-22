@@ -9,9 +9,9 @@ function timestep: calculates the timestep for a given time
 
 import numpy as np
 import mini_topsim.sputtering as sputter
-import mini_topsim.parameters as par
 import mini_topsim.beam as beam
-
+import scipy.constants as sciconst
+import mini_topsim.parameters as par
 
 
 def advance(surface, dtime):
@@ -28,7 +28,8 @@ def advance(surface, dtime):
     # eliminate overhangs
     costheta = np.where(costheta < 0, 0, costheta)
     sintheta = nx.copy()
-    v, v_deriv = get_velocities(costheta, sintheta, surface.xvals)
+
+    v, v_deriv = get_velocities(surface)
 
     if par.TIME_INTEGRATION == 'normal':
         surface.xvals += nx * v * dtime
@@ -59,34 +60,45 @@ def timestep(dtime, time, end_time):
     return dtime if (time + dtime) <= end_time else (end_time - time)
 
 
-def get_velocities(costheta, sintheta, x):
+def get_velocities(surface):
     """
     returns the surface velocities for each point
 
     Depending on the ETCHING parameter this function either returns the value
     of the ETCH_RATE parameter for etching, or calculates the surface
     velocity depending on the sputter flux density.
+    REDEP allows: accounting for redeposition
 
-    :param costheta: the cosine of the angle between the surface normal
+    costheta: the cosine of the angle between the surface normal
     and the sputter beam direction.
-    :param sintheta: the sine of the angle between the surface normal
+
+    sintheta: the sine of the angle between the surface normal
     and the sputter beam direction (default value None).
 
-    :param x: x-component of the surface
+    :param surface: surface object
 
     :returns: surface velocity for each surface point
     """
 
+    nx, ny = surface.normal_vector()
+    costheta = -ny.copy()
+
     if par.ETCHING is True:
         v = np.full_like(costheta, par.ETCH_RATE)
         v_deriv = np.zeros_like(v)
+    elif par.REDEP is True:
+        y = sputter.get_sputter_yield(costheta)
+        f_sput = (par.BEAM_CURRENT_DENSITY / sciconst.e * y[0] * costheta)
+        f_redep = surface.view_factor() @ f_sput
+        v = 1e7 * (f_sput - f_redep) / par.DENSITY
+        v_deriv = np.zeros_like(v)
     else:
+        sintheta = nx.copy()
         y, y_deriv = sputter.get_sputter_yield(costheta, sintheta)
-        f_beam = beam.beam_profile(x)
+        f_beam = beam.beam_profile(surface.xvals)
 
         v = (f_beam * y * costheta) / par.DENSITY
         v = v*1e7  # converting cm/s --> nm/s
-
         v_deriv = (1e7*f_beam) / par.DENSITY * (-sintheta*y+costheta*y_deriv)
 
     return v, v_deriv
