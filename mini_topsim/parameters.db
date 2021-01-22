@@ -3,6 +3,9 @@ ETCHING = (False, None,
     '''Flag selecting the simulation mode between etching and sputtering.
     True = Etching, False  = Sputtering
     ''')
+REDEP = (False, None,
+        '''Flag selecting the mode for redeposition.
+        True = consider redep, False = do not consider redep''')
 
 [Initial Conditions]
 XMIN = (-50., None,
@@ -95,6 +98,28 @@ DENSITY = (5e22, 'DENSITY > 0',
     '''Atom density of the sputtered material in atoms/cm^3'''
     )
 
+[Implant] 
+DOSE = (10e15, 'DOSE > 0',
+    '''Implantation dose (cm^-2) = the number of ions which hit the implantation target.
+	''')
+RP = (100., 'RP > 0',
+    '''Projected range = average distance an ion travelled normal to the surface.
+	''')
+DRP = (30., 'DRP > 0',
+    '''Longitudinal range straggling 
+	''')	
+DRLAT = (25., 'DRLAT > 0',
+    '''Lateral range straggling 
+	''')
+	
+[Bulk]
+BULK_DX = (10., 'BULK_DX > 0',
+    '''Spacing between grid points (nm) in x-direction.
+	''')	
+BULK_DY = (10., 'BULK_DY > 0',
+    '''Spacing between grid points (nm) in y-direction.
+	''')
+	
 [Output]
 PLOT_SURFACE = (True, None,
     '''Flag indicating that the plot function shall be called at the end
