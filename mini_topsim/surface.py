@@ -319,9 +319,12 @@ class Surface:
                         out=np.zeros_like(cos_a * cos_b),
                         where=distance != 0) * delta_l
 
-        beta = np.arccos(cos_b)
-        # beta = np.copysign(beta, x_distances)
-        sin_b = np.sin(beta)
+        # +/- crossproduct (nx, ny) x (x, y)
+        sines = -np.divide(nx * y_distances - ny * x_distances, distance,
+                           out=np.zeros_like(x_distances),
+                           where=distance != 0).T
+
+        sin_b = sines
 
         # calculate as cos_alpha * sin_beta * delta_l / (2*distance)
         v_factor_deriv = np.divide(
