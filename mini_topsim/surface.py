@@ -319,7 +319,7 @@ class Surface:
                         out=np.zeros_like(cos_a * cos_b),
                         where=distance != 0) * delta_l
 
-        # +/- crossproduct (nx, ny) x (x, y)
+        # cross product (nx, ny) x (x, y)
         sines = -np.divide(nx * y_distances - ny * x_distances, distance,
                            out=np.zeros_like(x_distances),
                            where=distance != 0).T
