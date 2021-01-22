@@ -14,7 +14,7 @@ Part of the miniTopSim Project: https://github.com/hobler/miniTopSim
 import os
 import matplotlib.pyplot as plt
 import numpy as np
-import parameters as par
+import mini_topsim.parameters as par
 
 
 filedir = os.path.dirname(__file__)
@@ -34,18 +34,8 @@ class Bulk:
 		self.yvals = yvals
 		self.x_grid = np.arange(par.XMIN, par.XMAX , par.BULK_DX)
 		self.y_grid = np.arange(np.amin(self.yvals) - par.RP - 3*par.DRP, 0+5 , par.BULK_DY)	
-		self.conc = conc # Case ako je false pogledati!
-		self.save_data_form = codedir + f"{par.INITIAL_SURFACE_TYPE.lower()}"
-
-	# def write_bulk(self):
-		# '''
-		# Writes the dopant distribution for the corresponding node coordinates to an .out file.
-		# '''
-		# with open(codedir + f"/Bulk_{par.INITIAL_SURFACE_TYPE}.out", 'w') as bulk_out_file:
-			# bulk_out_file.write("Dopant distribution\nX\t\tY\t\t\tconc\n")
-			# for x in self.x:
-				# for y, conc in zip(self.y, np.asarray(self.conc).reshape(-1)):
-					# bulk_out_file.write(f"{x}\t{y}\t{conc}\n")				
+		self.conc = conc 
+		self.save_data_form = codedir + f"{par.INITIAL_SURFACE_TYPE.lower()}"			
 	
 	def write_bulk(self):
 		'''

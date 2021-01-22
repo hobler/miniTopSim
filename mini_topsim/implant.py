@@ -21,7 +21,7 @@ from surface import Surface
 
 import sys
 import numpy as np
-import parameters as par
+import mini_topsim.parameters as par
 from scipy.interpolate import interp1d
 
 
@@ -36,8 +36,7 @@ class Gauss:
 		We use it since the probability distribution for the end point of the ion trajectories 
 		can be approximately described by a Gaussian function.			
 		'''
-		f_interp = interp1d(bulk.xvals, bulk.yvals, kind = 'cubic',bounds_error=False) # bounds_error=False: A value in x_new is below the interpolation range. Problem u V-Shape
-		#print(f_interp(-50))
+		f_interp = interp1d(bulk.xvals, bulk.yvals, kind = 'cubic',bounds_error=False) 
 		
 		prefactor = par.DOSE*(1e-14)/(2*np.pi*par.DRP*par.DRLAT)
 		Delta_R_p_pow = 2*par.DRP**2
@@ -50,15 +49,12 @@ class Gauss:
 				if y_koor <= f_interp(x_koor):  #inside material
 					for psi_i in np.arange(x_koor - 3*par.DRLAT, x_koor + 3*par.DRLAT , par.BULK_DX): 
 						if psi_i >= par.XMIN and psi_i <= par.XMAX:                     
-							#conc[i][j]+=np.exp(-(((y_koor-f_interp(psi_i)-par.RP) ** 2)/Delta_R_p_pow)- \
-							#(((x_koor-psi_i) ** 2)/Delta_R_lat_pow))*par.BULK_DX
 							conc[i][j]+=np.exp(-(((np.absolute(np.absolute(y_koor)-np.absolute(f_interp(psi_i))-par.RP)) ** 2)/Delta_R_p_pow)- \
 							((np.absolute(x_koor-psi_i) ** 2)/Delta_R_lat_pow))*par.BULK_DX
 					conc[i][j]*=prefactor
-				#print(x_koor , y_koor, conc[i][j])
-	
-		bulk.conc = conc			
-		
+				#print(x_koor , y_koor, conc[i][j])	
+		bulk.conc = conc	
+
 		
 if __name__ == '__main__':
 	'''
