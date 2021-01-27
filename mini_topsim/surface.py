@@ -10,7 +10,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import math
 import time
-import init_surface as init
+import mini_topsim.init_surface as init
 from numpy import arccos, dot, pi, cross
 from numpy.linalg import norm
 
@@ -192,7 +192,7 @@ class Surface:
         points witch should be removed. Flagging them makes it possible to
         enter the new points in the right position.
 
-        :param result_bool: contains the information if there was an
+        :param _result_bool: contains the information if there was an
         intersection or not as bool value
         """
 
@@ -275,10 +275,11 @@ class Surface:
     def view_factor(self):
         """
         calculates the view factor of a surface.
+
         point-to-point visibility considered according to assignment
-        Returns
-        -------
-        view factor of the surface
+
+        :returns: view factor and its derivative for each surface point
+        in a tuple
         """
         # meshgrid anschauen
         x_strech = np.broadcast_to(self.xvals,
@@ -292,9 +293,9 @@ class Surface:
         y_distances = y_strech_transpose - y_strech
 
         distance = np.sqrt(x_distances*x_distances+y_distances*y_distances)
-        normals = self.normal_vector()
-        cosines = -np.divide(normals[0] * x_distances
-                           + normals[1] * y_distances, distance,
+        nx, ny = self.normal_vector()
+
+        cosines = -np.divide(nx * x_distances + ny * y_distances, distance,
                            out=np.zeros_like(x_distances),
                            where=distance != 0).T
 
@@ -304,17 +305,38 @@ class Surface:
         # Frage, geht das schneller?
         delta_l = np.diag(np.roll(distance, 1) + np.roll(distance, -1)) / 2
 
+        # cos_beta_ij == cosines, cos_alpha_ij == cosines.T (== cos_beta_ji)
+        cos_b = cosines
+        cos_a = cosines.T
+
         # Mit Maske möglich
         v_factor = np.divide(
-                        np.multiply(cosines.T, cosines,
+                        np.multiply(cos_a, cos_b,
                                     out=np.zeros_like(cosines),
-                                    where=np.logical_and(cosines > 0,
-                                                         cosines.T > 0)),
+                                    where=np.logical_and(cos_b > 0,
+                                                         cos_a > 0)),
                         2 * distance,
-                        out=np.zeros_like(cosines.T * cosines),
+                        out=np.zeros_like(cos_a * cos_b),
                         where=distance != 0) * delta_l
 
-        return v_factor
+        # cross product (nx, ny) x (x, y)
+        sines = -np.divide(nx * y_distances - ny * x_distances, distance,
+                           out=np.zeros_like(x_distances),
+                           where=distance != 0).T
+
+        sin_b = sines
+
+        # calculate as cos_alpha * sin_beta * delta_l / (2*distance)
+        v_factor_deriv = np.divide(
+                        np.multiply(cos_a, sin_b,
+                                    out=np.zeros_like(cosines),
+                                    where=np.logical_and(cos_b > 0,
+                                                         cos_a > 0)),
+                        2 * distance,
+                        out=np.zeros_like(cos_a * sin_b),
+                        where=distance != 0) * delta_l
+
+        return v_factor, v_factor_deriv
 
 
 def point2segment_dist(p, seg):
@@ -327,8 +349,8 @@ def point2segment_dist(p, seg):
     to both segment endpoints is calculated and take the shortest
     distance is returned.
 
-    :param point: Numpy array p=[x,y]
-    :param line: list of segment endpoints [pstart, pend]=[[x1,y1],[x2,y2]]
+    :param p: Numpy array p=[x,y]
+    :param seg: list of segment endpoints [pstart, pend]=[[x1,y1],[x2,y2]]
     :return: The minimum distance between point and surface segment.
     """
     start = seg[0]

@@ -11,16 +11,16 @@ from time import time as currenttime
 
 import matplotlib.pyplot as plt
 
-from surface import Surface
-from advance import advance
-from advance import timestep
+from mini_topsim.surface import Surface
+from mini_topsim.advance import advance
+from mini_topsim.advance import timestep
 import mini_topsim.sputtering as sputter
 import mini_topsim.parameters as par
 from mini_topsim.beam import init_beam_profile
-import plot
+import mini_topsim.plot as plot
 
 
-def mini_topsim(config_file = None):
+def mini_topsim(config_file=None):
     """
     Loads parameters from config_file, starts the sim, plots and writes to file
 
@@ -44,24 +44,24 @@ def mini_topsim(config_file = None):
             config_filename = sys.argv[1]
         else:
             sys.exit('No Config file passed')
-            #config_filename = 'cosine.cfg'
+            # config_filename = 'cosine.cfg'
 
         config_file = config_filename
 
     if not config_file.endswith('.cfg'):
         print('Error: Incorrect config.')
         sys.exit()
-        
+
     filename = os.path.splitext(config_file)[0] + '.srf'
 
     if os.path.exists(filename):
         os.remove(filename)
-        
+
     par.load_parameters(config_file)
     dir_path = os.path.dirname(os.path.realpath(config_file))
-    par.INITIAL_SURFACE_FILE = os.path.join(dir_path, 
-        par.INITIAL_SURFACE_FILE)
-    
+    par.INITIAL_SURFACE_FILE = os.path.join(dir_path,
+                                            par.INITIAL_SURFACE_FILE)
+
     tend = par.TOTAL_TIME
     dt = par.TIME_STEP
 
@@ -84,19 +84,17 @@ def mini_topsim(config_file = None):
     stop_simulation_time = currenttime()
     simulation_time = stop_simulation_time - start_simulation_time
     print('The Simulation took: {}s'.format(float(simulation_time)))
-    surface.write(time, filename) 
-    
+    surface.write(time, filename)
+
     filename_save = filename + '_save'
-    
+
     if par.PLOT_SURFACE:
         if os.path.exists(filename_save):
             print('*.srf_save file exists... plotting both!')
             plot.plot(filename, filename_save)
         else:
             plot.plot(filename)
-        
+
 
 if __name__ == '__main__':
-    
     mini_topsim()
-
