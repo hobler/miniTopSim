@@ -1,5 +1,5 @@
 # miniTopSim
-Project of the Seminar "Scientific Programming in Python" at TU Wien, WS 2020/21.
+Project of the Seminar "Scientific Programming in Python" at TU Wien, SS 2022.
 
 --------------------
 1. Code-Organisation
@@ -9,7 +9,7 @@ Die Verzeichnisstruktur des Projekts:
 
 ```
 miniTopSim/
-    mini_topsim/                # Das Code-Verzeichnis
+    minitopsim/                 # Das Code-Verzeichnis
         __init__.py             # macht aus mini_topsim ein Package
         main.py                 # Main Script und Top-Level-Funktion
         parameters.py           # Modul, das die Parameter als Attribute hat
@@ -37,7 +37,7 @@ Es kann auch sein, dass Sie `pip3` statt `pip` sagen müssen, oder dass Sie `pip
 ```
     import os, sys
     filedir = os.path.dirname(__file__)
-    codedir = os.path.join(filedir, '..', ’..’, ’mini_topsim’)
+    codedir = os.path.join(filedir, '..', ’..’, ’minitopsim’)
     sys.path.insert(0, codedir)
 ```
 
@@ -45,13 +45,13 @@ Es kann auch sein, dass Sie `pip3` statt `pip` sagen müssen, oder dass Sie `pip
 2. Aufruf von miniTopSim
 ------------------------
 
-Rufen Sie miniTopSim immer aus "Ihrem" Arbeitsverzeichnis aus auf (`AufgabeX_xxxx`). Ab der zweiten Stunde soll der Aufruf mit
+Rufen Sie miniTopSim immer aus "Ihrem" Arbeitsverzeichnis aus auf (`AufgabeX_xxxx`), z.B. mit
 
 ```bash
-python3 run.py beispiel.cfg
+python3 ../../minitopsim/main.py beispiel.cfg
 ```
 
-erfolgen. In `run.py` erfolgen die Imports nach dem Muster von `work/templates/run.py`. Da für alle Aufgaben ein `run.py`-File geschrieben werden muss, wird dieses in den einzelnen Aufgabestellungen nicht extra erwähnt.
+Wenn Sie sich den langen Pfad ersparen wollen, können Sie ein Skript im Arbeitsverzeichnis schreiben. Für das Importieren von `main` als Modul finden Sie ein Beispiel in `work/templates/run.py`. In `work/templates/run.py` finden Sie auch ein Template für Pytest.
 
 `beispiel.cfg` (kann auch anders heißen, siehe Aufgabenstellung, jedenfalls aber mit Endung `.cfg`) ist das Konfigurationsfile (cfg-File), das wie folgt aussieht:
 
@@ -92,7 +92,7 @@ from . import parameters as par
 importiert. Die Parameter stehen dann als Modulvariablen des parameters Moduls zur Verfügung, d.h. sie können unter den Namen `par.ParameterName*` (`ParameterName*` entsprechend dem Parameternamen ersetzen) referenziert werde. Von außerhalb des Code-Verzeichnisses, also insbesondere von Ihrem Arbeitsverzeichnis aus, lautet der Import
 
 ```
-import mini_topsim.parameters as par
+import minitopsim.parameters as par
 ```
 
 ---------

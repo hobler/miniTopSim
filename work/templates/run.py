@@ -4,7 +4,7 @@ Template for calling miniTopSim.
 Feel free to copy, but do not modify the original!
 """
 
-from mini_topsim.main import mini_topsim
+from minitopsim.main import minitopsim
 
-success = mini_topsim()
+success = minitopsim()
 

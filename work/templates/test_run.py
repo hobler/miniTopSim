@@ -1,15 +1,14 @@
 """
 Template for testing miniTopSim using pytest.
 
-Feel free to copy, but do not modify the original!
 """
 import pytest
-from mini_topsim.main import mini_topsim
-import mini_topsim.parameters as par
+from minitopsim.main import minitopsim
+import minitopsim.parameters as par
 
 def test_run():
     """Test running miniTopSim."""
-    success = mini_topsim()
+    success = minitopsim()
     assert success, 'Error during executing miniTopSim.'
 
 @pytest.fixture()
