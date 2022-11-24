@@ -5,7 +5,7 @@ from . import parameters as par
 
 def minitopsim():
    print('Running miniTopSim ...')
-   print('TestParameter={}'.format(par.TestParameter))
+   print(f'TestParameter={par.TestParameter}')
    return True
    
 if __name__ == '__main__':

@@ -1,5 +1,5 @@
 # miniTopSim
-Project of the Seminar "Scientific Programming in Python" at TU Wien, SS 2022.
+Project of the Seminar "Scientific Programming in Python" at TU Wien, WS 2022/23
 
 --------------------
 1. Code-Organisation
@@ -32,7 +32,9 @@ Damit die Imports funktionieren, müssen Sie das Package lokal installieren. Wec
 pip install -e ./miniTopSim/
 ```
 
-Es kann auch sein, dass Sie `pip3` statt `pip` sagen müssen, oder dass Sie `pip` erst installieren müssen. Falls Sie mit `pip` nicht erfolgreich sind, ist ein Workaround, das Code-Verzeichnis in `sys.path` aufzunehmen:
+Es kann auch sein, dass Sie `pip3` statt `pip` sagen müssen, oder dass Sie `pip` erst installieren müssen. Für Windows siehe https://www.dataquest.io/blog/install-pip-windows/.
+
+Falls Sie mit `pip` nicht erfolgreich sind, ist ein Workaround, das Code-Verzeichnis in `sys.path` aufzunehmen:
 
 ```
     import os, sys
@@ -99,7 +101,7 @@ import minitopsim.parameters as par
 3. Testen
 ---------
 
-Ab der zweiten Stunde sind in den Aufgaben automatisierte Tests durchzuführen. Hierfür verwenden wir Pytest. Nachdem Sie Test-Code geschrieben haben, rufen Sie `pytest` (manchmal auch `pytest3` oder `pytest-3`) in Ihrem Arbeitsverzeichnis auf, dann werden Ihre Tests ausgeführt. Wollen Sie die Tests der anderen Aufgaben auch ausführen (das sollten Sie zumindest tun, bevor Sie mit Ihrer Aufgabe beginnen und bevor Sie diese abgeben), dann starten Sie `pytest` aus `work`. Für das Importieren von Modulen gilt dasselbe wie für das `run.py` Skript.
+Ab Aufgabe 6 sind automatisierte Tests durchzuführen. Hierfür verwenden wir Pytest. Nachdem Sie Test-Code geschrieben haben, rufen Sie `pytest` (manchmal auch `pytest3` oder `pytest-3`) in Ihrem Arbeitsverzeichnis auf, dann werden Ihre Tests ausgeführt. Wollen Sie die Tests der anderen Aufgaben auch ausführen (das sollten Sie zumindest tun, bevor Sie mit Ihrer Aufgabe beginnen und bevor Sie diese abgeben), dann starten Sie `pytest` aus `work`. Für das Importieren von Modulen gilt dasselbe wie für das `run.py` Skript.
 
 Tests müssen ein assert Statement enthalten (siehe Vortragsfolien)!
 
@@ -109,7 +111,7 @@ Wenn nichts anderes angegeben ist, besteht ein Test aus einer Simulation, die ei
 4. Arbeiten mit git
 -------------------
 
-- Sie können den Code jederzeit herunterladen (fetch bzw. pull). Erzeugen Sie einen Branch, auf dem Sie arbeiten. Wählen Sie den Branchnamen ident mit Ihrem Arbeitsverzeichnis (`Aufgabe1_basic` etc.). **Uploaden (pushen) Sie Ihren Branch spätestens um 8:00 am Tag Ihrer Präsentation. Laden Sie zusätzlich die "Abzugebenden Files" bis zu dieser Deadline auf TUWEL hoch.** Führen Sie nach der Präsentation und nach eventuellen Nachbesserungen Ihren Branch mit dem `master` Branch zusammen (merge) und **pushen Sie beide Branches bis spätestens eine Woche nach Ihrer Präsentation**.
+- Sie können den Code jederzeit herunterladen (fetch bzw. pull). Erzeugen Sie einen Branch, auf dem Sie arbeiten. Wählen Sie den Branchnamen ident mit Ihrem Arbeitsverzeichnis (`Aufgabe1_basic` etc.). **Uploaden (pushen) Sie Ihren Branch spätestens um 8:00 am Tag Ihrer Präsentation. Laden Sie zusätzlich die "Abzugebenden Files" bis zu dieser Deadline auf TUWEL hoch.** Führen Sie nach der Präsentation und nach eventuellen Nachbesserungen Ihren Branch mit dem `master` Branch zusammen (merge) und **pushen Sie beide Branches bis spätestens zum Termin der Nachbesprechung**.
 
 - Grundsätzlich nur getesteten, voll funktionsfähigen Code uploaden, insbesondere am `master` Branch. Lokal in Ihrem Branch ist es hingegen ratsam, viele Commits zu machen.
 
