@@ -24,8 +24,8 @@ miniTopSim/
         templates/              # Verzeichnis für Templates (nicht ändern!)
             run.py              # Skript zum Laufenlassen von miniTopSim
             test_run.py         # Testmodul
-    minitopsim.py               # Main script for running miniTopSim
-    plot.py                     # Main script for plotting only
+    minitopsim.py               # Main script, um miniTopSim laufen zu lassen
+    plot.py                     # Main script, um (nur) Resultate zu plotten
 ```
 
 Damit die Imports aus den Arbeitsverzeichnissen heraus funktionieren, müssen Sie das Package lokal installieren. Wechseln Sie in das Projektverzeichnisses (`miniTopSim`) und geben Sie ein:
