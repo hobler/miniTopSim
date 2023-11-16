@@ -1,5 +1,5 @@
 # miniTopSim
-Project of the Seminar "Scientific Programming in Python" at TU Wien, WS 2022/23
+Project of the Seminar "Scientific Programming in Python" at TU Wien, WS 2023/24
 
 --------------------
 1. Code-Organisation
@@ -11,7 +11,7 @@ Die Verzeichnisstruktur des Projekts:
 miniTopSim/
     minitopsim/                 # Das Code-Verzeichnis
         __init__.py             # macht aus mini_topsim ein Package
-        main.py                 # Main Script und Top-Level-Funktion
+        main.py                 # Top-Level-Funktion
         parameters.py           # Modul, das die Parameter als Attribute hat
         ...                     # weitere Module
         parameters.db           # Parameterdatenbank
@@ -24,9 +24,11 @@ miniTopSim/
         templates/              # Verzeichnis für Templates (nicht ändern!)
             run.py              # Skript zum Laufenlassen von miniTopSim
             test_run.py         # Testmodul
+    minitopsim.py               # Main script for running miniTopSim
+    plot.py                     # Main script for plotting only
 ```
 
-Damit die Imports funktionieren, müssen Sie das Package lokal installieren. Wechseln Sie in das Überverzeichnis des Projektverzeichnisses (`miniTopSim`) und geben Sie ein:
+Damit die Imports aus den Arbeitsverzeichnissen heraus funktionieren, müssen Sie das Package lokal installieren. Wechseln Sie in das Projektverzeichnisses (`miniTopSim`) und geben Sie ein:
 
 ```bash
 pip install -e ./miniTopSim/
@@ -50,10 +52,10 @@ Falls Sie mit `pip` nicht erfolgreich sind, ist ein Workaround, das Code-Verzeic
 Rufen Sie miniTopSim immer aus "Ihrem" Arbeitsverzeichnis aus auf (`AufgabeX_xxxx`), z.B. mit
 
 ```bash
-python3 ../../minitopsim/main.py beispiel.cfg
+python3 ../../minitopsim.py beispiel.cfg
 ```
 
-Wenn Sie sich den langen Pfad ersparen wollen, können Sie ein Skript im Arbeitsverzeichnis schreiben. Für das Importieren von `main` als Modul finden Sie ein Beispiel in `work/templates/run.py`. In `work/templates/run.py` finden Sie auch ein Template für Pytest.
+Sie können auch ein Skript in Ihrem Arbeitsverzeichnis schreiben, welches den Import von `main` durchführt. Sie finden ein Beispiel in `work/templates/run.py`. In `work/templates/run.py` finden Sie auch ein Template für Pytest.
 
 `beispiel.cfg` (kann auch anders heißen, siehe Aufgabenstellung, jedenfalls aber mit Endung `.cfg`) ist das Konfigurationsfile (cfg-File), das wie folgt aussieht:
 
