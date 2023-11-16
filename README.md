@@ -55,7 +55,7 @@ Rufen Sie miniTopSim immer aus "Ihrem" Arbeitsverzeichnis aus auf (`AufgabeX_xxx
 python3 ../../minitopsim.py beispiel.cfg
 ```
 
-Sie können auch ein Skript in Ihrem Arbeitsverzeichnis schreiben, welches den Import von `main` durchführt. Sie finden ein Beispiel in `work/templates/run.py`. In `work/templates/run.py` finden Sie auch ein Template für Pytest.
+Sie können auch ein Skript in Ihrem Arbeitsverzeichnis schreiben, welches den Import von `main` durchführt. Sie finden ein Beispiel in `work/templates/run.py`. In `work/templates` finden Sie auch ein Template für Pytest.
 
 `beispiel.cfg` (kann auch anders heißen, siehe Aufgabenstellung, jedenfalls aber mit Endung `.cfg`) ist das Konfigurationsfile (cfg-File), das wie folgt aussieht:
 
