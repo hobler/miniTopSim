@@ -1,5 +1,5 @@
 # miniTopSim
-Project of the Seminar "Scientific Programming in Python" at TU Wien, WS 2022/23
+Project of the Seminar "Scientific Programming in Python" at TU Wien, WS 2023/24
 
 --------------------
 1. Code-Organisation
@@ -50,10 +50,14 @@ Falls Sie mit `pip` nicht erfolgreich sind, ist ein Workaround, das Code-Verzeic
 Rufen Sie miniTopSim immer aus "Ihrem" Arbeitsverzeichnis aus auf (`AufgabeX_xxxx`), z.B. mit
 
 ```bash
-python3 ../../minitopsim/main.py beispiel.cfg
+python3 ../../minitopsim.py beispiel.cfg
+```
+bzw.
+```bash
+python3 -m minitopsim.main beispiel.cfg
 ```
 
-Wenn Sie sich den langen Pfad ersparen wollen, können Sie ein Skript im Arbeitsverzeichnis schreiben. Für das Importieren von `main` als Modul finden Sie ein Beispiel in `work/templates/run.py`. In `work/templates/run.py` finden Sie auch ein Template für Pytest.
+Sie können auch ein Skript in Ihrem Arbeitsverzeichnis schreiben, welches den Import von `main` durchführt. Sie finden ein Beispiel in `work/templates/run.py`. In `work/templates/run.py` finden Sie auch ein Template für Pytest.
 
 `beispiel.cfg` (kann auch anders heißen, siehe Aufgabenstellung, jedenfalls aber mit Endung `.cfg`) ist das Konfigurationsfile (cfg-File), das wie folgt aussieht:
 
