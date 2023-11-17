@@ -113,7 +113,7 @@ Wenn nichts anderes angegeben ist, besteht ein Test aus einer Simulation, die ei
 4. Arbeiten mit git
 -------------------
 
-- Sie können den Code jederzeit herunterladen (fetch bzw. pull). Erzeugen Sie einen Branch, auf dem Sie arbeiten. Wählen Sie den Branchnamen ident mit Ihrem Arbeitsverzeichnis (`Aufgabe1_basic` etc.). **Uploaden (pushen) Sie Ihren Branch spätestens um 8:00 am Tag Ihrer Präsentation. Laden Sie zusätzlich die "Abzugebenden Files" bis zu dieser Deadline auf TUWEL hoch.** Führen Sie nach der Präsentation und nach eventuellen Nachbesserungen Ihren Branch mit dem `master` Branch zusammen (merge) und **pushen Sie beide Branches bis spätestens zum Termin der Nachbesprechung**.
+- Sie können den Code jederzeit herunterladen (fetch bzw. pull). Erzeugen Sie einen Branch, auf dem Sie arbeiten. Wählen Sie den Branchnamen ident mit Ihrem Arbeitsverzeichnis (`Aufgabe1_basic` etc.). **Uploaden (pushen) Sie Ihren Branch spätestens um 12:00 am Tag VOR Ihrer Präsentation. Laden Sie zusätzlich die "Abzugebenden Files" bis zu dieser Deadline auf TUWEL hoch.** Führen Sie nach der Präsentation und nach eventuellen Nachbesserungen Ihren Branch mit dem `master` Branch zusammen (merge) und **pushen Sie beide Branches bis spätestens zum Termin der Nachbesprechung**.
 
 - Grundsätzlich nur getesteten, voll funktionsfähigen Code uploaden, insbesondere am `master` Branch. Lokal in Ihrem Branch ist es hingegen ratsam, viele Commits zu machen.
 
