@@ -78,6 +78,11 @@ def _check_and_set_attributes(new_values):
     elif val_err:
         raise ValueError(err_msg)
 
+    # raise an error if a variable still is not assigned
+    for key, value in globals().items():
+        if key.isupper() and not key.startswith("_") and type(value) is type:
+            raise ValueError(f'Attribute {key} is not assigned')
+
 
 def load_parameters(file):
     """Load parameters from file.
