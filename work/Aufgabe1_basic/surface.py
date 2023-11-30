@@ -37,8 +37,8 @@ class Surface:
         x = self.x
         y = self.y
 
-        dx = np.array(np.diff(x), 1)
-        dy = np.array(np.diff(y), 0)
+        dx = np.append(np.diff(x), 1)
+        dy = np.append(np.diff(y), 0)
     
         # Calculate the normal vectors between the points
         normal_vecs = np.vstack((-dy, dx))
@@ -48,20 +48,21 @@ class Surface:
 
         return normal_vecs
 
-def plot(self):
-    """
-    A 2D plot of the surface.
+    def plot(self, name):
+        """
+        A 2D plot of the surface.
 
-    The points are connected by line segments.
-    The x- and y-axes both only show integers wih distance of 20.
+        Args:
+            filename (str): The name of the file to which the plot is
+            saved.
+        """
+        plt.plot(self.x, self.y, 'o-', markersize=2, label=name)
+        plt.xticks(np.arange(-60, 61, 20))
+        plt.yticks(np.arange(-120, 21, 20))
+        plt.xlabel('x [nm]')
+        plt.ylabel('y [nm]')
+        plt.grid()
 
-    """
-    plt.plot(self.x, self.y, 'k')
-    plt.axis('equal')
-    plt.xticks(np.arange(int(min(self.x)), int(max(self.x))+1, 20))
-    plt.yticks(np.arange(int(min(self.y)), int(max(self.y))+1, 20))
-    plt.grid()
-    plt.show()
 
 
 

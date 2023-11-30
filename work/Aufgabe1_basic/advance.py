@@ -1,9 +1,10 @@
-from work.Aufgabe1_basic.surface import Surface
-from work.Aufgabe1_basic.io_surface import write_surface
-
 """
 Module containing functions for moving the surface over time.
 """
+
+from work.Aufgabe1_basic.surface import Surface
+from work.Aufgabe1_basic.io_surface import write_surface
+
 
 def advance(surface, dtime):
     """
@@ -12,18 +13,15 @@ def advance(surface, dtime):
     Args:
         surface (Surface): The surface to be moved.
         dtime (float): The time step size.
-    
-    Returns:
-        Surface: The new surface. 
     """
     x = surface.x
     y = surface.y
 
     normal_v = surface.normal_vector()
-
+    print(normal_v[0][40])
     x += normal_v[0] * dtime
     y += normal_v[1] * dtime
-
+    
     return Surface(x, y)
 
 def timestep(dt, time, tend):
