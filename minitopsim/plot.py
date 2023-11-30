@@ -32,17 +32,20 @@ class Surface_Plotter:
             fig.canvas.draw()
             number=int(event.key)
             srf_fobj=io.read_surface(srf_fobj,pow(2,number))
+            ax.clear()
             ax.plot(srf_fobj[0].x, srf_fobj[0].y, "b")
             fig.canvas.draw()
         elif event.key == 'Space':
             print("lol")
         elif event.key == 'f':
             srf_fobj=io.read_surface(srf_fobj,1)
+            ax.clear()
             ax.plot(srf_fobj[0].x, srf_fobj[0].y, "b")
             fig.canvas.draw()
             print(event.key)
         elif event.key == 'l':
             srf_fobj=io.read_surface(srf_fobj,10)
+            ax.clear()
             ax.plot(srf_fobj[0].x,srf_fobj[0].y,"b")
             fig.canvas.draw()
             print(event.key)
