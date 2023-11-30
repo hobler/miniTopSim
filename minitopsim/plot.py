@@ -1,6 +1,5 @@
 import matplotlib.pyplot as plt
 import matplotlib as mpl
-import numpy as np
 import os
 
 "import work/Aufgabe3_plot/io_surface.py"
@@ -17,34 +16,35 @@ def plot(fname):
     # Überschreiben der default keymap Werte
     mpl.rcParams['keymap.save']="ü"
     mpl.rcParams['keymap.quit'] = "ä"
+    mpl.rcParams['keymap.fullscreen'] = "ß"
+    mpl.rcParams['keymap.yscale'] = "#"
+
     # Connect with with event handling
-    cid = fig.canvas.mpl_connect('key_press_event',lambda event: Surface_Plotter.onkey(event,fname))
-    plt.plot(srf_obj.x,srf_obj.y)
-    "plt.ion()"
+    cid = fig.canvas.mpl_connect('key_press_event',lambda event: Surface_Plotter.onkey(event,fname,srf_fobj))
+    plt.plot(srf_obj[0].x,srf_obj[0].y,"b")
     plt.show()
-    "print('plot: Not yet implemented')"
 
 
 class Surface_Plotter:
-    def onkey(event,fname):
-        if event.key == 'x':
-            if event.xdata is not None and event.ydata is not None:
-                ax.plot(event.xdata, event.ydata, 'bo-')
-                fig.canvas.draw()
-        elif event.key.isdigit():
+    def onkey(event,fname,srf_fobj):
+        if event.key.isdigit():
             print(event.key)
-            if event.xdata is not None and event.ydata is not None:
-                ax.plot(event.xdata, event.ydata, 'bo-')
-                fig.canvas.draw()
+            fig.canvas.draw()
             number=int(event.key)
-            "io.read_surface()"
+            srf_fobj=io.read_surface(srf_fobj,pow(2,number))
+            ax.plot(srf_fobj[0].x, srf_fobj[0].y, "b")
+            fig.canvas.draw()
         elif event.key == 'Space':
             print("lol")
         elif event.key == 'f':
-            io.read_surface()
+            srf_fobj=io.read_surface(srf_fobj,1)
+            ax.plot(srf_fobj[0].x, srf_fobj[0].y, "b")
+            fig.canvas.draw()
             print(event.key)
         elif event.key == 'l':
-            io.read_surface()
+            srf_fobj=io.read_surface(srf_fobj,10)
+            ax.plot(srf_fobj[0].x,srf_fobj[0].y,"b")
+            fig.canvas.draw()
             print(event.key)
         elif event.key == 'a':
             global count
@@ -59,7 +59,6 @@ class Surface_Plotter:
         elif event.key == 'd':
             print(event.key)
         elif event.key == 's':
-
             plt.savefig(os.path.join("work/Aufgabe3_plot",fname.split(".")[0]+".png"))
             print(event.key)
         elif event.key == 'b':
