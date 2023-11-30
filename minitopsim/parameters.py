@@ -105,7 +105,13 @@ def load_parameters(file):
     for section in cfg_config.sections():
         for attribute in cfg_config[section]:
             attribute = attribute.upper()
-            new_values[attribute] = eval(cfg_config[section].get(attribute))
+
+            if attribute in globals():
+                new_values[attribute] = eval(cfg_config[section]
+                                             .get(attribute))
+            else:
+                raise KeyError(f'Attribute {attribute} not defined in '
+                               f'default values!')
 
     _check_and_set_attributes(new_values)
 
