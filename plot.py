@@ -1,3 +1,3 @@
 from minitopsim.plot import plot
 
-plot()
+plot("trench.srf")
