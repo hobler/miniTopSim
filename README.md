@@ -28,10 +28,10 @@ miniTopSim/
     plot.py                     # Main script, um (nur) Resultate zu plotten
 ```
 
-Damit die Imports aus den Arbeitsverzeichnissen heraus funktionieren, müssen Sie das Package lokal installieren. Wechseln Sie in das Projektverzeichnisses (`miniTopSim`) und geben Sie ein:
+Damit die Imports aus den Arbeitsverzeichnissen heraus funktionieren, müssen Sie das Package lokal installieren. Wechseln Sie in das Projektverzeichnis (`miniTopSim`) und geben Sie ein:
 
 ```bash
-pip install -e ./miniTopSim/
+pip install -e .
 ```
 
 Es kann auch sein, dass Sie `pip3` statt `pip` sagen müssen, oder dass Sie `pip` erst installieren müssen. Für Windows siehe https://www.dataquest.io/blog/install-pip-windows/.
