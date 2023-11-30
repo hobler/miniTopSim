@@ -18,6 +18,49 @@ import configparser
 _categories = dict()
 
 
+def _check_and_set_attributes(new_values):
+    """Check if new attributes meet conditions and set variables if so.
+
+    Args:
+        new_values(dict): the new values, which should be applied.
+    """
+    type_err = False
+    err_msg = ''
+
+    for key, value in new_values.items():
+        if value is None:
+            continue
+
+        # check data type
+        if type(value) is int and type(globals()[key]) is float:
+            # original data type was float, new is int -> cast to float
+            value = float(value)
+        elif type(globals()[key]) is type:
+            if type(value) is int and globals()[key] is float:
+                # data type definition was float, new is int -> cast to float
+                value = float(value)
+            elif type(value) is not globals()[key]:
+                # data type was specified without default value and new data
+                # type is wrong
+                err_msg = f'{err_msg}ERROR: type of {key} '\
+                    f'({type(value).__name__}) does '\
+                    f'not match {globals()[key]}!\n'
+                type_err = True
+                continue
+        elif type(value) is not type(globals()[key]):
+            # new data type does not match original data type
+            err_msg = f'{err_msg}ERROR: type of {key} '\
+                f'({type(value).__name__}) does not '\
+                f'match {type(globals()[key]).__name__}!'
+            type_err = True
+            continue
+
+        globals()[key] = value
+
+    if type_err:
+        raise TypeError(err_msg)
+
+
 def load_parameters(file):
     """Load parameters from file.
 
@@ -41,9 +84,7 @@ def load_parameters(file):
             attribute = attribute.upper()
             new_values[attribute] = eval(cfg_config[section].get(attribute))
 
-    for attribute, value in new_values.items():
-        if value is not None:
-            globals()[attribute] = value
+    _check_and_set_attributes(new_values)
 
 
 # load default config from file
