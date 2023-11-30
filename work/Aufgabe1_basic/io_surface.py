@@ -5,7 +5,7 @@ a file.
 
 import numpy as np 
 from math import cos, pi
-from surface import Surface 
+from work.Aufgabe1_basic.surface import Surface 
 from math import cos, pi
 
 
@@ -56,7 +56,7 @@ def write_surface(surface, time, srf_fobject):
     """
     try:
         with open(srf_fobject, 'w') as file:
-            file.write("surface: " + str(time) + " " + str(len(surface.x)) + "\n")
+            file.write("surface: " + str(time) + " " + str(len(surface.x)) + "x-positions y-positions\n")
             for i in range(len(surface.x)):
                 file.write(str(surface.x[i]) + " " + str(surface.y[i]) + "\n")
     except Exception as e:

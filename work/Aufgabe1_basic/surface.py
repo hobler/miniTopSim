@@ -37,14 +37,14 @@ class Surface:
         x = self.x
         y = self.y
 
-        dx = np.diff(x)
-        dy = np.diff(y)
+        dx = np.array(np.diff(x), 1)
+        dy = np.array(np.diff(y), 0)
     
         # Calculate the normal vectors between the points
         normal_vecs = np.vstack((-dy, dx))
 
         # Normalize the normal vectors
-        normal_vecs = normal_vecs/np.linalg.norm(normal_vecs, axis=0)
+        normal_vecs = normal_vecs/np.linalg.norm(normal_vecs)
 
         return normal_vecs
 
