@@ -25,6 +25,7 @@ def _check_and_set_attributes(new_values):
         new_values(dict): the new values, which should be applied.
     """
     type_err = False
+    val_err = False
     err_msg = ''
 
     for key, value in new_values.items():
@@ -55,10 +56,27 @@ def _check_and_set_attributes(new_values):
             type_err = True
             continue
 
+        # check condition
+        section = _categories[key]
+        condition = eval(_def_config[section].get(key))[1]
+        # has to be set before, otherwise condition is checked for default
+        # value
         globals()[key] = value
 
-    if type_err:
+        # if condition is None, eval(condition) is not executed
+        if condition is not None and not eval(condition):
+            err_msg = f'{err_msg}ERROR: Attribute {key} '\
+                f'({new_values[key]}) doesn\'t meet '\
+                f'condition {condition}!'
+            val_err = True
+
+    if type_err and val_err:
+        # Exception is in the hierarchy above TypeError and ValueError
+        raise Exception(err_msg)
+    elif type_err:
         raise TypeError(err_msg)
+    elif val_err:
+        raise ValueError(err_msg)
 
 
 def load_parameters(file):
