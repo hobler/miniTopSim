@@ -32,43 +32,52 @@ class Surface_Plotter:
     count2 = 0
     count3 = 0
     count4 = 0
+    incdec=0
+
     d = 1
     r = 1
 
     def onkey(event, srf_fobj):
         # white space represents backspace
         if event.key == " ":
-
             if Surface_Plotter.r == 1:
+
+                Surface_Plotter.incdec+=1
                 print(Surface_Plotter.r)
             elif Surface_Plotter.r == 2:
+                Surface_Plotter.incdec -= 1
                 print(Surface_Plotter.r)
+            if Surface_Plotter.d == 1:
+                    ax.clear()
+            srf_obj = io.read_surface(srf_fobj,Surface_Plotter.incdec)
+            ax.plot(srf_obj[0].x, srf_obj[0].y, "b")
+            fig.canvas.draw()
 
         elif event.key.isdigit():
 
             print(event.key)
             number = int(event.key)
-            srf_fobj = io.read_surface(srf_fobj, pow(2, number))
+            srf_obj = io.read_surface(srf_fobj, pow(2, number))
             if Surface_Plotter.d == 1:
                 ax.clear()
-            ax.plot(srf_fobj[0].x, srf_fobj[0].y, "b")
+            ax.plot(srf_obj[0].x, srf_obj[0].y, "b")
             fig.canvas.draw()
 
         elif event.key == 'f':
 
-            srf_fobj = io.read_surface(srf_fobj, 1)
+            srf_obj = io.read_surface(srf_fobj, 1)
             if Surface_Plotter.d == 1:
                 ax.clear()
-            ax.plot(srf_fobj[0].x, srf_fobj[0].y, "b")
+            ax.plot(srf_obj[0].x, srf_obj[0].y, "b")
             fig.canvas.draw()
             print(event.key)
 
         elif event.key == 'l':
 
-            srf_fobj = io.read_surface(srf_fobj, 10)
+            srf_obj = io.read_surface(srf_fobj, 10)
             if Surface_Plotter.d == 1:
                 ax.clear()
-            ax.plot(srf_fobj[0].x, srf_fobj[0].y, "b")
+            ax.plot(srf_obj[0].x, srf_obj[0].y, "b")
             fig.canvas.draw()
             print(event.key)
 
