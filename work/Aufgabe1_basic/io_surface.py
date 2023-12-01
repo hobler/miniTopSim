@@ -51,11 +51,12 @@ def write_surface(surface, time, srf_fobject):
     and npoints is the number of points on the surface.
 
     The name of the file should have the format 
-    "basic_<tend>_<dt>.srf", where <tend> is the end time and
+    "basic_<tend>_<dt>", where <tend> is the end time and
     <dt> is the time step size.
     """
     try:
-        with open(srf_fobject, 'w') as file:
+        mode = 'w' if time == 0 else 'a'
+        with open(srf_fobject, mode) as file:
             file.write("surface: " + str(time) + " " + str(len(surface.x)) + "x-positions y-positions\n")
             for i in range(len(surface.x)):
                 file.write(str(surface.x[i]) + " " + str(surface.y[i]) + "\n")
