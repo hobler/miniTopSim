@@ -96,7 +96,7 @@ def load_parameters(file):
     """
     # join directory if file is not absolute path
     if not os.path.isabs(file):
-        file = os.path.join(os.path.dirname(__file__), file)
+        file = os.path.join(os.getcwd(), file)
 
     # read config from file
     cfg_config = configparser.ConfigParser()
