@@ -20,8 +20,7 @@ def minitopsim():
 
    # Initialize the surface
    surface = init_surface()
-   print(surface.normal_vector()[0])
-   print("Das ist NV")
+   
    # Write and plot initial surface 
    if (write_surface(surface, 0, filename + '.srf')==False):
       exit()
