@@ -1,9 +1,12 @@
 """Read config from file and propagate data as python variables.
 
+When the module is imported, the configuration is automatically loaded
+from parameters.db. load_parameters() MUST be called before variables
+are accessed.
 Configuration variables can be accessed using 'parameters.<name>'.
 
 Variables:
-    depend on content from parameters.db.
+    depend on default configuration from parameters.db.
 
 Functions:
     load_parameters(): Has to be called before variables are accessed.
