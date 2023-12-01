@@ -36,12 +36,14 @@ class Surface:
         """
         x = self.x
         y = self.y
-
+        
+        # calculate difference between points, append (1,0) for last 
+        # point
         dx = np.append(np.diff(x), 1)
         dy = np.append(np.diff(y), 0)
     
         # Calculate the normal vectors between the points
-        normal_vecs = np.vstack((-dy, dx))
+        normal_vecs = np.vstack((dy, -dx))
 
         # Normalize the normal vectors
         normal_vecs = normal_vecs/np.linalg.norm(normal_vecs)
