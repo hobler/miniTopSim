@@ -2,13 +2,15 @@ import re
 import numpy as np
 import os
 
+import minitopsim.surface as su
+
 np.set_printoptions(threshold=np.inf)
 clist1=[]
 
 
 def read_surface(srf_fobj,n=1):
-    c2 = 0
-    filesrf = open(os.path.join("work/Aufgabe3_plot", "trench.srf"), "r")
+    """ c2 = 0
+    filesrf = open(os.path.join("work/Aufgabe3_plot", srf_fobj), "r")
     content=filesrf.readlines()
     x=np.zeros([])
     y=np.zeros([])
@@ -22,9 +24,8 @@ def read_surface(srf_fobj,n=1):
                 time=float(float(lines.split(" ")[1]))
                 print("time in ns:",time)
                 break
-    filesrf.close()
+    filesrf.close()"""
 
 
-    srf_fobj.x=x
-    srf_fobj.y=y
-    return srf_fobj,time
+    "srf_obj=su.Surface(x,y)"
+    "return srf_obj,time"
