@@ -51,7 +51,7 @@ def write_surface(surface, time, srf_fobject):
     and npoints is the number of points on the surface.
 
     The name of the file should have the format 
-    "basic_<tend>_<dt>", where <tend> is the end time and
+    "basic_<tend>_<dt>.srf", where <tend> is the end time and
     <dt> is the time step size.
     """
     try:

@@ -42,8 +42,7 @@ class Surface:
         
         dx = np.append(np.diff(x), 1)
         dy = np.append(np.diff(y), 0)
-        print("dx ist: ", dy)
-    
+        
         # Calculate the normal vectors between the points
         normal_vecs = np.vstack((dy, -dx))
 
