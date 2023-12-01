@@ -26,16 +26,39 @@ def read_surface(srf_fobj,n=1):
                 break
     filesrf.close()"""
     count=0
-    for lines in content:
-        if "surface" not in lines and (count % n) == 1 :
-
-            x=np.append(x,float(lines.split(" ")[0]))
-            y=np.append(y,float(lines.split(" ")[1].replace("\n", "")))
-        elif "surface" in lines:
-            count += 1
-            "time=float(float(lines.split(" ")[1]))"
-            """print("time in ns:",time)"""
-            pass
+    if n>=0:
+        for lines in content:
+            if "surface" not in lines and ((count % n) == 1):
+                """print("right")"""
+                x=np.append(x,float(lines.split(" ")[0]))
+                y=np.append(y,float(lines.split(" ")[1].replace("\n", "")))
+            elif "surface" in lines:
+                count += 1
+                time=float(float(lines.split(" ")[1]))
+                print("time in ns:",time)
+    elif n==-1:
+        for lines in content:
+            if "surface" not in lines :
+                """print("right")"""
+                x=np.append(x,float(lines.split(" ")[0]))
+                y=np.append(y,float(lines.split(" ")[1].replace("\n", "")))
+                if count==1:
+                    break
+            elif "surface" in lines:
+                count+=1
+                time=float(float(lines.split(" ")[1]))
+                print("time in ns:",time)
+    elif n == -2:
+        for lines in reversed(content):
+            if "surface" not in lines:
+                """print("right")"""
+                x = np.append(x, float(lines.split(" ")[0]))
+                y = np.append(y, float(lines.split(" ")[1].replace("\n", "")))
+            elif "surface" in lines:
+                time=float(float(lines.split(" ")[1]))
+                print("time in ns:", time)
+                break
+                """print("time in ns:",time)"""
 
     filesrf.close()
     srf_obj=su.Surface(x,y)

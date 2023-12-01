@@ -41,14 +41,13 @@ class Surface_Plotter:
         # white space represents backspace
         if event.key == " ":
             if Surface_Plotter.r == 1:
-
                 Surface_Plotter.incdec+=1
-                print(Surface_Plotter.r)
             elif Surface_Plotter.r == 2:
                 Surface_Plotter.incdec -= 1
                 print(Surface_Plotter.r)
             if Surface_Plotter.d == 1:
                     ax.clear()
+            print(Surface_Plotter.incdec)
             srf_obj = io.read_surface(srf_fobj,Surface_Plotter.incdec)
             ax.plot(srf_obj[0].x, srf_obj[0].y, "b")
             fig.canvas.draw()
@@ -65,7 +64,7 @@ class Surface_Plotter:
 
         elif event.key == 'f':
 
-            srf_obj = io.read_surface(srf_fobj, 1)
+            srf_obj = io.read_surface(srf_fobj,-1)
             if Surface_Plotter.d == 1:
                 ax.clear()
             ax.plot(srf_obj[0].x, srf_obj[0].y, "b")
@@ -74,7 +73,7 @@ class Surface_Plotter:
 
         elif event.key == 'l':
 
-            srf_obj = io.read_surface(srf_fobj, 10)
+            srf_obj = io.read_surface(srf_fobj, -2)
             if Surface_Plotter.d == 1:
                 ax.clear()
             ax.plot(srf_obj[0].x, srf_obj[0].y, "b")
