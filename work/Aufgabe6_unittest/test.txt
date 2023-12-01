@@ -1,0 +1,4 @@
+this is a simple test
+tablet is ready
+pc is ready
+linx-laptop is ?
