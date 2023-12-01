@@ -18,7 +18,6 @@ def advance(surface, dtime):
     y = surface.y
 
     normal_v = surface.normal_vector()
-    print(normal_v[0][40])
     x += normal_v[0] * dtime
     y += normal_v[1] * dtime
     

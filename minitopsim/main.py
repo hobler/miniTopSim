@@ -21,15 +21,18 @@ def minitopsim():
 
    # Initialize the surface
    surface = init_surface()
-
+   print(surface.normal_vector()[0])
+   print("Das ist NV")
    # Write and plot initial surface 
-   write_surface(surface, 0, filename + '.srf')
+   if (write_surface(surface, 0, filename + '.srf')==False):
+      exit()
    surface.plot("Initial Surface")
 
    # Move surface over time until tend is reached
    while dt > 0:
       surface = advance(surface, dt)
-      write_surface(surface, time + dt, filename + '.srf')
+      if(write_surface(surface, time + dt, filename + '.srf')==False):
+         exit()
       time += dt
       dt = timestep(dt, time, tend)
       print("time = ", time, "dt = ", dt)
@@ -43,7 +46,7 @@ def minitopsim():
    plt.savefig(filename + '.png')
    plt.show()
 
-   return True
+   return True 
 
 
 
