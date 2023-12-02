@@ -21,7 +21,10 @@ def advance(surface, dtime):
     x += normal_v[0] * dtime
     y += normal_v[1] * dtime
     
-    return Surface(x, y)
+    surface.x = x
+    surface.y = y
+    
+    return surface
 
 def timestep(dt, time, tend):
     """
