@@ -1,13 +1,12 @@
 """
 Main script and function to run miniTopSim.
 """
-from minitopsim import parameters as par
+import parameters as par
+from advance import advance, timestep
+from io_surface import init_surface, write_surface
+
 import sys
 import matplotlib.pyplot as plt
-
-sys.path.append("..")
-from work.Aufgabe1_basic.advance import advance, timestep
-from work.Aufgabe1_basic.io_surface import init_surface, write_surface
 
 
 def minitopsim():
