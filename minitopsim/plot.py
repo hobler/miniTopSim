@@ -1,4 +1,4 @@
-"""Plotting and eventhandling
+"""Plotting and event handling
 
 Variables:
     fig and ax are for updating the plot with key press events
@@ -17,7 +17,6 @@ import matplotlib as mpl
 import os
 
 import minitopsim.io_surface as io
-import minitopsim.surface as su
 
 fig, ax = plt.subplots()
 
@@ -26,7 +25,7 @@ def plot(fname):
     """Calls read_surface function to create a surface object which is then plotted
 
         Args:
-            fname: the file to be plotted
+            fname(file): the file to be plotted
         """
     srf_fobj = fname
     srf_obj = io.read_surface(srf_fobj)
@@ -53,43 +52,51 @@ class Surface_Plotter:
         Variables: count,count2,count3,count4,d,r state variables to switch between modes
 
         Functions:
-            onkey(eventm srf_fobj)
+            onkey(eventm,srf_fobj)
         """
     count = 0
     count2 = 0
     count3 = 0
     count4 = 0
     incdec=0
-    srf_obj=su.Surface(0,0)
+    number=0
 
     d = 1
     r = 1
     k = 1
 
+    # add class method decorator (cls)
     def onkey(event, srf_fobj):
+        """Callback Function responsible for key events
+
+            Args:
+                event: controlls which
+                srf_fobj (file): file to be read
+
+        """
         # white space represents backspace
         if event.key == " ":
             if Surface_Plotter.r == 1:
 
                 if Surface_Plotter.k==0:
-                    Surface_Plotter.incdec+=1
+                    Surface_Plotter.incdec=-3-Surface_Plotter.number-1
                 elif Surface_Plotter.k==1:
-                    pass
+                    Surface_Plotter.incdec=-3-Surface_Plotter.incdec-1
                 elif Surface_Plotter.k==2:
-                    pass
+                    print("last surface already plotted")
 
             elif Surface_Plotter.r == 2:
 
                 if Surface_Plotter.k==0:
-                    Surface_Plotter.incdec -= 1
+                    Surface_Plotter.incdec=-3+Surface_Plotter.number+1
                 elif Surface_Plotter.k==1:
-                    pass
+                    print("first surface already plotted")
                 elif Surface_Plotter.k==2:
-                    pass
+                    Surface_Plotter.incdec=-3-Surface_Plotter.incdec+1
 
             if Surface_Plotter.d == 1:
                     ax.clear()
-
+            "print(Surface_Plotter.incdec)"
             srf_obj = io.read_surface(srf_fobj,Surface_Plotter.incdec)
             ax.plot(srf_obj[0].x, srf_obj[0].y, "b")
             fig.canvas.draw()
@@ -99,6 +106,7 @@ class Surface_Plotter:
             print(event.key)
             number = int(event.key)
             srf_obj = io.read_surface(srf_fobj, pow(2, number))
+            Surface_Plotter.incdec=number
             if Surface_Plotter.d == 1:
                 ax.clear()
             ax.plot(srf_obj[0].x, srf_obj[0].y, "b")
