@@ -2,11 +2,10 @@
 Module cotaining functions for calculating a surface and writing it to
 a file.
 """
-from surface import Surface
+import minitopsim.parameters as par
+from minitopsim.surface import Surface
 
 import numpy as np
-from math import cos, pi
-from math import cos, pi
 
 
 def init_surface():
@@ -16,11 +15,16 @@ def init_surface():
     Returns:
         Surface: The initial surface.
     """
-    x = np.linspace(-50, 50, 100)
+    x = np.arange(par.XMIN, par.XMAX, par.DELTA_X)
 
     # Define the surface
     y = np.zeros_like(x)
-    y[25:76] = -50 * (1 + np.cos(2 * np.pi * x[25:76] / 50))
+    fun_start = int((par.FUN_XMIN - par.XMIN)/par.DELTA_X)
+    fun_stop = int((par.FUN_XMAX - par.XMIN)/par.DELTA_X) + 1
+
+    y[fun_start:fun_stop] = par.FUN_PEAK_TO_PEAK/2 * \
+        (1 + np.cos(2 * np.pi * x[fun_start:fun_stop] /
+                    (par.FUN_XMAX - par.FUN_XMIN)))
 
     return Surface(x, y)
 

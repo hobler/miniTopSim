@@ -1,11 +1,9 @@
 """
 Module containing functions for moving the surface over time.
 """
-from surface import Surface
-from io_surface import write_surface
 
 
-def advance(surface, dtime):
+def advance(surface, dtime, etch_rate):
     """
     Calculates the new surface after a time step.
 
@@ -17,8 +15,10 @@ def advance(surface, dtime):
     y = surface.y
 
     normal_v = surface.normal_vector()
-    x += normal_v[0] * dtime
-    y += normal_v[1] * dtime
+    d_etch = normal_v * etch_rate
+
+    x += d_etch[0] * dtime
+    y += d_etch[1] * dtime
 
     surface.x = x
     surface.y = y
