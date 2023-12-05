@@ -15,6 +15,8 @@ Classes:
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 import os
+import numpy
+import numpy as np
 
 import minitopsim.io_surface as io
 
@@ -27,7 +29,10 @@ def plot(fname):
         Args:
             fname(file): the file to be plotted
         """
-    srf_fobj = fname
+    x=np.linspace(0,1000,100)
+    y=np.linspace(0,2000,100)
+
+    srf_fobj = open(os.path.join("work/Aufgabe3_plot", fname), "r")
     srf_obj = io.read_surface(srf_fobj)
 
     # Overwriting the default keymap values to use them for our purposes
@@ -38,22 +43,66 @@ def plot(fname):
     mpl.rcParams["keymap.back"] = "~"
 
     # Connect with the event handling
-    cid = fig.canvas.mpl_connect('key_press_event', lambda event: Surface_Plotter.onkey(event, srf_fobj))
+    plot1=Surface_Plotter(fname)
+
+    "cid = fig.canvas.mpl_connect('key_press_event', lambda event: Surface_Plotter.on_key_press(plot1,event))"
+    plot1.run()
+    "cid = fig.canvas.mpl_connect('key_press_event', Surface_Plotter.on_key_press)"
     fig.canvas.manager.set_window_title(fname)
-    plt.plot(srf_obj[0].x, srf_obj[0].y, "b")
+    plt.plot(x, y, "b")
     plt.xlabel('x in nm')
-    plt.ylabel('y in nm')
+    plt.ylabel('y in nm')    
     plt.show()
 
-
 class Surface_Plotter:
-    """Check if new attributes meet conditions and set variables if so.
+    def __init__(self, srf_file):
+        self.srf_file=srf_file
+    def on_key_press(self,event):
+        print(event.key)
+        if event.key=="q":
+            "self.srf_file.close()"
+            plt.close()
+        elif event.key=="a":
+            "if Surface_Plotter.count == 0:"
+            ax.set_aspect('auto')
+            self.update_plot()
+            "Surface_Plotter.count += 1"
+            "elif Surface_Plotter.count == 1:"
+            ax.set_aspect('equal')
+            self.update_plot()
+            "Surface_Plotter.count = 0"
+        elif event.key=="b":
+            ax.set_ylim(-100, 5)
+            ax.set_xlim(-150, 150)
+            self.update_plot()
+            ax.autoscale()
+        elif event.key=="s":
+            plt.savefig(os.path.join("work/Aufgabe3_plot", self.srf_file.split(".")[0] + ".png"))
+        elif event.key=="r":
+            pass
+        elif event.key=="d":
+            pass
+        elif event.key=="f":
+            pass
+        elif event.key=="l":
+            pass
+        elif event.key.isdigit():
+            pass
+        elif event.key==" ":
+            pass
+    def update_plot(self):
+        "ax.plot(srf_obj[0].x, srf_obj[0].y, b)"
+        fig.canvas.draw()
+    def run(self):
+        fig.canvas.mpl_connect('key_press_event', lambda event: Surface_Plotter.on_key_press(self,event))
+"""class Surface_Plotter:
+    Check if new attributes meet conditions and set variables if so.
 
         Variables: count,count2,count3,count4,d,r state variables to switch between modes
 
         Functions:
             onkey(eventm,srf_fobj)
-        """
+        
     count = 0
     count2 = 0
     count3 = 0
@@ -67,13 +116,13 @@ class Surface_Plotter:
 
     # add class method decorator (cls)
     def onkey(event, srf_fobj):
-        """Callback Function responsible for key events
+        Callback Function responsible for key events
 
             Args:
                 event: controlls which
                 srf_fobj (file): file to be read
 
-        """
+        
         # white space represents backspace
         if event.key == " ":
             if Surface_Plotter.r == 1:
@@ -184,4 +233,4 @@ class Surface_Plotter:
         elif event.key == 'q':
 
             plt.close()
-            print(event.key)
+            print(event.key)"""
