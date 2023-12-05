@@ -34,14 +34,14 @@ def minitopsim():
             exit()
         time += dt
         dt = timestep(dt, time, tend)
-        print("time = ", time, "dt = ", dt)
+        print(f'time = {time}, dt = {dt}')
 
     # Plot final surface and save plot
     if par.PLOT_SURFACE:
         surface.plot("Final Surface")
         plt.legend()
-        plt.title("Sputtering yield simulation, tend = " + str(tend) +
-                "s, dt = " + str(par.TIME_STEP) + "s")
+        plt.title(f'Sputtering yield simulation, tend = {tend}s, dt = '
+                f'{par.TIME_STEP}s')
 
         plt.savefig(filename + '.png')
         plt.show()

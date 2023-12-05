@@ -61,10 +61,10 @@ def write_surface(surface, time, srf_fobject):
     try:
         mode = 'w' if time == 0 else 'a'
         with open(srf_fobject, mode) as file:
-            file.write("surface: " + str(time) + " " + str(len(surface.x))
-                       + "x-positions y-positions\n")
+            file.write(f'surface: {time} {len(surface.x)} x-positions '
+                       f'y-positions\n')
             for i in range(len(surface.x)):
-                file.write(str(surface.x[i]) + " " + str(surface.y[i]) + "\n")
+                file.write(f"{surface.x[i]} {surface.y[i]}\n")
     except Exception as e:
         print("An error occurred while writing the surface to the file:",
               str(e))
