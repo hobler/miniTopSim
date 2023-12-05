@@ -70,5 +70,4 @@ def write_surface(surface, time, srf_fobject):
               str(e))
         return False
 
-    print("Surface written to file.")
     return True
