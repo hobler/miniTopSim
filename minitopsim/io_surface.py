@@ -19,12 +19,10 @@ def init_surface():
 
     # Define the surface
     y = np.zeros_like(x)
-    fun_start = int((par.FUN_XMIN - par.XMIN)/par.DELTA_X)
-    fun_stop = int((par.FUN_XMAX - par.XMIN)/par.DELTA_X) + 1
 
-    y[fun_start:fun_stop] = par.FUN_PEAK_TO_PEAK/2 * \
-        (1 + np.cos(2 * np.pi * x[fun_start:fun_stop] /
-                    (par.FUN_XMAX - par.FUN_XMIN)))
+    mask = (par.FUN_XMIN < x) & (x < par.FUN_XMAX)
+    y[mask] = par.FUN_PEAK_TO_PEAK/2 * \
+        (1 + np.cos(2 * np.pi * x[mask] / (par.FUN_XMAX - par.FUN_XMIN)))
 
     return Surface(x, y)
 
