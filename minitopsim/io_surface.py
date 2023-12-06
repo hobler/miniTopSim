@@ -15,7 +15,9 @@ def init_surface():
     Returns:
         Surface: The initial surface.
     """
-    x = np.arange(par.XMIN, par.XMAX, par.DELTA_X)
+    # some weird numpy bug(?): np.nextafter is not big enough
+    max_val = 2*np.nextafter(par.XMAX, float('inf')) - par.XMAX
+    x = np.arange(par.XMIN, max_val, par.DELTA_X)
 
     # Define the surface
     y = np.zeros_like(x)
