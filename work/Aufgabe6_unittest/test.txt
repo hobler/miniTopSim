@@ -1,3 +1,0 @@
-tablet is ready
-pc is ready
-linux-laptop is ready
