@@ -77,3 +77,67 @@ class Surface:
         plt.xlabel('x [nm]')
         plt.ylabel('y [nm]')
         plt.grid()
+
+    def has_shadows(self):
+        """Returns True if the surface has any shadows."""
+        return np.any(np.diff(self.x) <= 0)
+
+    def get_shadows(self):
+        """Returns a boolean mask of all the shadowed poits of the surface.
+
+        Typical Usage:
+            mask = surface.get_shadows()
+            surface.x[mask]     #shadowed x-values
+            surface.y[mask]     #shadowed y-values
+
+            Important only use mask like that if Surface has shadows.
+        """
+        shadows_mask = np.full_like(self.x, False, dtype=bool)
+
+        lastidx = 0
+        lastx = self.x[0]
+
+        for i in range(1, self.x.size):
+            if self.x[i] <= lastx:
+                if self.y[i] <= self.y[lastidx]:
+                    #shadowed point
+                    shadows_mask[i] = True
+                else:
+                    #shadows the previous point
+                    shadows_mask[lastidx] = True
+                    lastidx = i
+                    lastx = self.x[i]
+            else:
+                lastidx = i
+                lastx = self.x[i]
+
+        lastidx = -1
+        lastx = self.x[-1]
+
+        for i in range(-2, -self.x.size+1, -1):
+            if self.x[i] >= lastx:
+                if self.y[i] <= self.y[lastidx]:
+                    #shadowed point
+                    shadows_mask[i] = True
+                else:
+                    #shadows the previous point
+                    shadows_mask[lastidx] = True
+                    lastidx = i
+                    lastx = self.x[i]
+            else:
+                lastidx = i
+                lastx = self.x[i]
+
+        return shadows_mask
+
+    def interpolate(self, xnew):
+        """Interpolates the surface for new x-values.
+        
+        Important do not use if surface still has shadows.
+
+        Args:
+            xnew (array-like): x-values to interpolate
+        """
+        ynew = np.interp(xnew, self.x, self.y)
+        self.x = xnew
+        self.y = ynew
