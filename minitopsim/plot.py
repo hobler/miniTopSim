@@ -3,7 +3,6 @@ import matplotlib.pyplot as plt
 import os
 import matplotlib as mpl
 from minitopsim.io_surface import read_surface
-from minitopsim.surface import Surface
 
 def plot(srf_file):
 
@@ -20,17 +19,19 @@ class Surface_Plotter:
     def __init__(self, srf_file):
         self.srf_file = srf_file
 
-        # we have to know which surface to use
+        # stores the data in a lis
         self.surface_data = []
+
         self.index = 0
-        self.show_every = 1
+
+        self.show_every = 0
         self.reverse = False
         self.aspect_ratio_auto = True
         self.delete_previous = False
         self.save_plot = False
         self.adjust_boundaries = True
-        self.initial_index = 0
 
+        # read all surface files at initialization
         self.read_surfaces()
 
 
@@ -53,27 +54,33 @@ class Surface_Plotter:
         key = event.key
 
         if key == ' ':
-            self.index = (self.index + 1) if not self.reverse else (self.index - 1)
+            self.index = (self.index + 1+ self.show_every) if not self.reverse else (self.index - 1- self.show_every)
+            self.update_plot()
         elif key.isdigit():
             n = int(key)
-            self.show_every = 2 ** n
+            self.show_every = (2 ** n)-1
         elif key == 'f':
             self.index = 0
+            self.update_plot()
         elif key == 'l':
             self.index = len(self.surface_data) - 1
+            self.update_plot()
         elif key == 'r':
             self.reverse = not self.reverse
         elif key == 'a':
             self.aspect_ratio_auto = not self.aspect_ratio_auto
+            self.update_plot()
         elif key == 'd':
             self.delete_previous = not self.delete_previous
         elif key == 's':
             plt.savefig(os.path.join(f"work/Aufgabe3_plot",f"{self.srf_file.split('.')[0]}.png"))
+            print("file saved")
         elif key == 'b':
             self.adjust_boundaries = not self.adjust_boundaries
+            self.update_plot()
         elif key == 'q':
             plt.close()
-        self.update_plot()
+
 
     def update_plot(self):
         if self.delete_previous:
@@ -90,23 +97,18 @@ class Surface_Plotter:
 
             if self.adjust_boundaries:
                 self.ax.autoscale()
-                """self.ax.set_ylim(-100, 100)
-                self.ax.set_xlim(-150, 150)"""
             else:
-                self.ax.set_ylim(-100,5)
+                self.ax.set_ylim(-180,5)
                 self.ax.set_xlim(-150, 150)
-                """self.ax.set_xlim(min(current_surface.y), max(current_surface.y))
-                self.ax.set_ylim(min(current_surface.x), max(current_surface.x))"""
 
             self.ax.legend()
             self.fig.canvas.draw_idle()
-        else:
-            self.index=0
-
-        #else:
-        """ current_time = self.times_and_surfaces[0]"""
-        """self.ax.text(0.5, 0.5, f"Time: {current_time}", horizontalalignment='center',
-        verticalalignment='center', fontsize=12)"""
+        elif self.index>=len(self.surface_data):
+            print("last surface already plotted")
+            self.index=len(self.surface_data)-1-self.show_every
+        elif self.index<0:
+            self.index = 0+self.show_every
+            print("first surface already plotted")
 
     def run(self):
         self.fig.canvas.manager.set_window_title(self.srf_file)
