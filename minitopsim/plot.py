@@ -57,8 +57,12 @@ class Surface_Plotter:
             srf_file (str): The name of the surface file to be plotted.
         """
         self.srf_file = srf_file
+
+        # Store the surface and time tuples in a list
         self.surface_data = []
+
         self.index = 0
+
         self.show_every = 0
         self.reverse = False
         self.aspect_ratio_auto = True
@@ -66,10 +70,13 @@ class Surface_Plotter:
         self.save_plot = False
         self.adjust_boundaries = True
 
-        # Read all surface files at initialization
+        # read all surface files at initialization
         self.read_surfaces()
 
-        # Create the first plot
+
+        # Weitere Initialisierungen können hier erfolgen
+
+        # Erstelle den ersten Plot
         self.fig, self.ax = plt.subplots()
         self.update_plot()
 
