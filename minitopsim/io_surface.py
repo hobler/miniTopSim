@@ -92,8 +92,40 @@ np.set_printoptions(threshold=np.inf)
                     break
     filesrf.close()"""
 
-def read_surface(srf_fobj):
-    "with srf_fobj"
-    srf_fobj.close()
-    srf_obj=su.Surface(1,1)
+"""def read_surface(srf_fobj):
+    with srf_fobj as f:
+        pass
+    f=srf_fobj.readlines()
+    it=iter(f)
+    for lines in f:
+        if "surface" in lines:
+            npoints=int(lines.split(" ")[2])
+            next(it)
+        for i in range(npoints):
+            next(it)
+            print(lines)
 
+    "srf_fobj.close()"
+    srf_obj=su.Surface(1,1)"""
+
+from minitopsim.surface import Surface
+
+
+def read_surface(srf_fobj):
+    surface_info = srf_fobj.readline().split()
+
+    if not surface_info:
+        return None, None
+
+    current_time = float(surface_info[1])
+    npoints = int(surface_info[2])
+
+    x_coords = []
+    y_coords = []
+
+    for _ in range(npoints):
+        line = srf_fobj.readline().split()
+        x_coords.append(float(line[0]))
+        y_coords.append(float(line[1]))
+
+    return Surface(x_coords, y_coords), current_time

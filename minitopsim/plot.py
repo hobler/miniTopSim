@@ -1,3 +1,122 @@
+
+import matplotlib.pyplot as plt
+import os
+import matplotlib as mpl
+from minitopsim.io_surface import read_surface
+from minitopsim.surface import Surface
+
+def plot(srf_file):
+
+    mpl.rcParams['keymap.save'] = "ü"
+    mpl.rcParams['keymap.quit'] = "ä"
+    mpl.rcParams['keymap.fullscreen'] = "ß"
+    mpl.rcParams['keymap.yscale'] = "#"
+    mpl.rcParams["keymap.back"] = "~"
+
+    plot1 = Surface_Plotter(srf_file)
+    plot1.run()
+
+class Surface_Plotter:
+    def __init__(self, srf_file):
+        self.srf_file = srf_file
+
+        # we have to know which surface to use
+        self.surface_data = []
+        self.index = 0
+        self.show_every = 1
+        self.reverse = False
+        self.aspect_ratio_auto = True
+        self.delete_previous = False
+        self.save_plot = False
+        self.adjust_boundaries = True
+        self.initial_index = 0
+
+        self.read_surfaces()
+
+
+        # Weitere Initialisierungen können hier erfolgen
+
+        # Erstelle den ersten Plot
+        self.fig, self.ax = plt.subplots()
+        self.update_plot()
+
+    def read_surfaces(self):
+        with open(os.path.join("work/Aufgabe3_plot",self.srf_file), 'r') as file:
+            self.surface_data = []  # Clear existing surface data
+            while True:
+                current_surface, current_time = read_surface(file)
+                if current_surface is None or current_time is None:
+                    break
+                self.surface_data.append((current_surface, current_time))
+
+    def on_key_press(self, event):
+        key = event.key
+
+        if key == ' ':
+            self.index = (self.index + 1) if not self.reverse else (self.index - 1)
+        elif key.isdigit():
+            n = int(key)
+            self.show_every = 2 ** n
+        elif key == 'f':
+            self.index = 0
+        elif key == 'l':
+            self.index = len(self.surface_data) - 1
+        elif key == 'r':
+            self.reverse = not self.reverse
+        elif key == 'a':
+            self.aspect_ratio_auto = not self.aspect_ratio_auto
+        elif key == 'd':
+            self.delete_previous = not self.delete_previous
+        elif key == 's':
+            plt.savefig(os.path.join(f"work/Aufgabe3_plot",f"{self.srf_file.split('.')[0]}.png"))
+        elif key == 'b':
+            self.adjust_boundaries = not self.adjust_boundaries
+        elif key == 'q':
+            plt.close()
+        self.update_plot()
+
+    def update_plot(self):
+        if self.delete_previous:
+            self.ax.clear()
+
+        if 0 <= self.index < len(self.surface_data):
+            current_surface, current_time =self.surface_data[self.index]
+            self.ax.plot(current_surface.x,current_surface.y,"b", label=f"Time: {current_time}")
+            self.ax.set_title("Surface Plot")
+            self.ax.set_xlabel("X Position (nm)")
+            self.ax.set_ylabel("Y Position (nm)")
+
+            self.ax.set_aspect('auto' if self.aspect_ratio_auto else 'equal')
+
+            if self.adjust_boundaries:
+                self.ax.autoscale()
+                """self.ax.set_ylim(-100, 100)
+                self.ax.set_xlim(-150, 150)"""
+            else:
+                self.ax.set_ylim(-100,5)
+                self.ax.set_xlim(-150, 150)
+                """self.ax.set_xlim(min(current_surface.y), max(current_surface.y))
+                self.ax.set_ylim(min(current_surface.x), max(current_surface.x))"""
+
+            self.ax.legend()
+            self.fig.canvas.draw_idle()
+        else:
+            self.index=0
+
+        #else:
+        """ current_time = self.times_and_surfaces[0]"""
+        """self.ax.text(0.5, 0.5, f"Time: {current_time}", horizontalalignment='center',
+        verticalalignment='center', fontsize=12)"""
+
+    def run(self):
+        self.fig.canvas.manager.set_window_title(self.srf_file)
+        self.fig.canvas.mpl_connect('key_press_event', self.on_key_press)
+
+        # Halte die Anwendung geöffnet
+        plt.show()
+
+
+
 """Plotting and event handling
 
 Variables:
@@ -10,7 +129,7 @@ Classes:
     Surface_Plotter: Contains the event handling functionality for
         controlling the plot.
 
-"""
+
 
 import matplotlib.pyplot as plt
 import matplotlib as mpl
@@ -21,19 +140,18 @@ import numpy as np
 import minitopsim.io_surface as io
 
 fig, ax = plt.subplots()
-
+ln, = ax.plot([], [])
 
 def plot(fname):
-    """Calls read_surface function to create a surface object which is then plotted
+    Calls read_surface function to create a surface object which is then plotted
 
         Args:
             fname(file): the file to be plotted
-        """
+        
     x=np.linspace(0,1000,100)
     y=np.linspace(0,2000,100)
 
-    srf_fobj = open(os.path.join("work/Aufgabe3_plot", fname), "r")
-    srf_obj = io.read_surface(srf_fobj)
+
 
     # Overwriting the default keymap values to use them for our purposes
     mpl.rcParams['keymap.save'] = "ü"
@@ -44,11 +162,12 @@ def plot(fname):
 
     # Connect with the event handling
     plot1=Surface_Plotter(fname)
-
+    srf_fobj = open(os.path.join("work/Aufgabe3_plot", fname), "r")
+    srf_obj = io.read_surface(plot1.srf_fobj)
     "cid = fig.canvas.mpl_connect('key_press_event', lambda event: Surface_Plotter.on_key_press(plot1,event))"
     plot1.run()
     "cid = fig.canvas.mpl_connect('key_press_event', Surface_Plotter.on_key_press)"
-    fig.canvas.manager.set_window_title(fname)
+
     plt.plot(x, y, "b")
     plt.xlabel('x in nm')
     plt.ylabel('y in nm')    
@@ -57,45 +176,69 @@ def plot(fname):
 class Surface_Plotter:
     def __init__(self, srf_file):
         self.srf_file=srf_file
+        self.srf_fobj=open(os.path.join("work/Aufgabe3_plot", self.srf_file), "r")
+
+        self.aspectratio=0
+        self.boundary=0
+        self.clear=0
+        self.reverse=0
+
+
     def on_key_press(self,event):
         print(event.key)
         if event.key=="q":
-            "self.srf_file.close()"
+            self.srf_fobj.close()
             plt.close()
         elif event.key=="a":
-            "if Surface_Plotter.count == 0:"
-            ax.set_aspect('auto')
+            if self.aspectratio==0:
+                self.aspectratio+=1
+                ax.set_aspect('equal')
+            else:
+                self.aspectratio = 0
+                ax.set_aspect('auto')
             self.update_plot()
-            "Surface_Plotter.count += 1"
-            "elif Surface_Plotter.count == 1:"
-            ax.set_aspect('equal')
-            self.update_plot()
-            "Surface_Plotter.count = 0"
         elif event.key=="b":
-            ax.set_ylim(-100, 5)
-            ax.set_xlim(-150, 150)
+
+            if self.boundary==0:
+                self.boundary += 1
+                ax.set_ylim(-100, 5)
+                ax.set_xlim(-150, 150)
+            else:
+                self.boundary = 0
+                ax.autoscale()
+
             self.update_plot()
-            ax.autoscale()
+
         elif event.key=="s":
             plt.savefig(os.path.join("work/Aufgabe3_plot", self.srf_file.split(".")[0] + ".png"))
         elif event.key=="r":
             pass
         elif event.key=="d":
-            pass
+            if self.clear==0:
+                self.clear+=1
+                ax.clear()
+            else:
+                self.clear=0
+
+            self.update_plot()
         elif event.key=="f":
-            pass
+            io.read_surface(self.srf_fobj)
+            self.update_plot()
         elif event.key=="l":
-            pass
+            io.read_surface(self.srf_fobj)
+            self.update_plot()
         elif event.key.isdigit():
-            pass
+            io.read_surface(self.srf_fobj)
         elif event.key==" ":
-            pass
+            io.read_surface(self.srf_fobj)
+            self.update_plot()
     def update_plot(self):
         "ax.plot(srf_obj[0].x, srf_obj[0].y, b)"
         fig.canvas.draw()
     def run(self):
-        fig.canvas.mpl_connect('key_press_event', lambda event: Surface_Plotter.on_key_press(self,event))
-"""class Surface_Plotter:
+        fig.canvas.manager.set_window_title(self.srf_file)
+        fig.canvas.mpl_connect('key_press_event', self.on_key_press)
+class Surface_Plotter:
     Check if new attributes meet conditions and set variables if so.
 
         Variables: count,count2,count3,count4,d,r state variables to switch between modes
