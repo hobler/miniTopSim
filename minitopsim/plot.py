@@ -7,7 +7,7 @@ Classes:
     SurfacePlotter: A class for managing the plotting functionality.
 
 Functions:
-    main(): The main entry point of the script.
+    plot(): Creates a Surface_Plotter object and starts the event loop.
 """
 
 import matplotlib.pyplot as plt
