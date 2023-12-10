@@ -1,3 +1,15 @@
+"""
+File: surface_plotter.py
+
+A script for plotting surfaces and providing interactive navigation using Matplotlib.
+
+Classes:
+    SurfacePlotter: A class for managing the plotting functionality.
+
+Functions:
+    main(): The main entry point of the script.
+"""
+
 import matplotlib.pyplot as plt
 import os
 import matplotlib as mpl
@@ -45,12 +57,8 @@ class Surface_Plotter:
             srf_file (str): The name of the surface file to be plotted.
         """
         self.srf_file = srf_file
-
-        # Store the surface and time tuples in a list
         self.surface_data = []
-
         self.index = 0
-
         self.show_every = 0
         self.reverse = False
         self.aspect_ratio_auto = True
@@ -58,13 +66,10 @@ class Surface_Plotter:
         self.save_plot = False
         self.adjust_boundaries = True
 
-        # read all surface files at initialization
+        # Read all surface files at initialization
         self.read_surfaces()
 
-
-        # Weitere Initialisierungen können hier erfolgen
-
-        # Erstelle den ersten Plot
+        # Create the first plot
         self.fig, self.ax = plt.subplots()
         self.update_plot()
 

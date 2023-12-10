@@ -3,6 +3,7 @@ File: io_surface.py
 
 A module providing functions to read surface information from a file-like object.
 """
+
 from minitopsim.surface import Surface
 import numpy as np
 
