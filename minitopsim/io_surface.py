@@ -2,11 +2,10 @@
 Module cotaining functions for calculating a surface and writing it to
 a file.
 """
-from surface import Surface
+import minitopsim.parameters as par
+from minitopsim.surface import Surface
 
 import numpy as np
-from math import cos, pi
-from math import cos, pi
 
 
 def init_surface():
@@ -16,11 +15,16 @@ def init_surface():
     Returns:
         Surface: The initial surface.
     """
-    x = np.linspace(-50, 50, 100)
+    # some weird numpy bug(?): np.nextafter is not big enough
+    max_val = 2*np.nextafter(par.XMAX, float('inf')) - par.XMAX
+    x = np.arange(par.XMIN, max_val, par.DELTA_X)
 
     # Define the surface
     y = np.zeros_like(x)
-    y[25:76] = -50 * (1 + np.cos(2 * np.pi * x[25:76] / 50))
+
+    mask = (par.FUN_XMIN < x) & (x < par.FUN_XMAX)
+    y[mask] = par.FUN_PEAK_TO_PEAK/2 * \
+        (1 + np.cos(2 * np.pi * x[mask] / (par.FUN_XMAX - par.FUN_XMIN)))
 
     return Surface(x, y)
 
@@ -57,16 +61,15 @@ def write_surface(surface, time, srf_fobject):
     try:
         mode = 'w' if time == 0 else 'a'
         with open(srf_fobject, mode) as file:
-            file.write("surface: " + str(time) + " " + str(len(surface.x))
-                       + "x-positions y-positions\n")
+            file.write(f'surface: {time} {len(surface.x)} x-positions '
+                       f'y-positions\n')
             for i in range(len(surface.x)):
-                file.write(str(surface.x[i]) + " " + str(surface.y[i]) + "\n")
+                file.write(f"{surface.x[i]} {surface.y[i]}\n")
     except Exception as e:
         print("An error occurred while writing the surface to the file:",
               str(e))
         return False
 
-    print("Surface written to file.")
     return True
 
 File: io_surface.py
