@@ -2,28 +2,42 @@
 Module containing functions for moving the surface over time.
 """
 
+import numpy as np
+from scipy.constants import elementary_charge
+from minitopsim.surface import Surface
+from . import parameters as par
+from . import sputtering as sput
 
-def advance(surface, dtime, etch_rate):
+def advance(surface, dtime):
     """
     Calculates the new surface after a time step.
 
     Args:
         surface (Surface): The surface to be moved.
         dtime (float): The time step size.
+
+    Returns:
+        new_surface (Surface): The new, moved surface.
+        dtime (float): The actually used time step size
+                       (can differ from arg when using interpolation).
     """
-    x = surface.x
-    y = surface.y
+    x = np.copy(surface.x)
+    y = np.copy(surface.y)
 
-    normal_v = surface.normal_vector()
-    d_etch = normal_v * etch_rate
+    velocity = get_velocities(surface)
 
-    x += d_etch[0] * dtime
-    y += d_etch[1] * dtime
+    x += velocity[0] * dtime
+    y += velocity[1] * dtime
 
-    surface.x = x
-    surface.y = y
+    new_surface = Surface(x, y)
 
-    return surface
+    if par.INTERPOLATION:
+        if new_surface.has_shadows():
+            return advance(surface, dtime/2)
+        else:
+            new_surface.interpolate(surface.x)
+
+    return new_surface, dtime
 
 
 def timestep(dt, time, tend):
@@ -45,3 +59,36 @@ def timestep(dt, time, tend):
         return tend - time
 
     return dt
+
+def get_velocities(surface):
+    """ Calculates the velocities used for advancing the surface.
+
+    Calculates the velocities used for advancing in x- & y-direction,
+    using the parameters from parameters.py.
+
+    Args:
+        surface (Surface): surface for which to calculate the velocities.
+
+    Returns:
+        array-like (2xn): velocities in x- & y-direction (row 1/2)
+    """
+    normal_vec = surface.normal_vector()
+
+    if par.ETCHING:
+        v_normal = np.ones(surface.x.size)
+        v_normal *= par.ETCH_RATE    #normal velocity [nm/s]
+    else:
+        cos_theta = -normal_vec[1]
+        Y_s = sput.get_sputter_yield(cos_theta)
+        Y_s = np.nan_to_num(Y_s)    #prevents wierd behavoir from loops
+        F_beam = par.BEAM_CURRENT_DENSITY / elementary_charge
+        F_sput = F_beam * Y_s * cos_theta
+        v_normal = F_sput / par.DENSITY     #[cm/s]
+        v_normal *= 1e7                     #[nm/s]
+
+    if not par.INTERPOLATION: 
+        if surface.has_shadows():
+            msk = surface.get_shadows()
+            v_normal[msk] = 0
+
+    return normal_vec * v_normal
