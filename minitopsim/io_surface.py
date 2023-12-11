@@ -1,6 +1,8 @@
 """
+File: io_surface.py
+
 Module cotaining functions for calculating a surface and writing it to
-a file.
+a file and to read surface information from a file-like object.
 """
 import minitopsim.parameters as par
 from minitopsim.surface import Surface
@@ -71,14 +73,6 @@ def write_surface(surface, time, srf_fobject):
         return False
 
     return True
-
-File: io_surface.py
-
-A module providing functions to read surface information from a file-like object.
-"""
-
-from minitopsim.surface import Surface
-import numpy as np
 
 def read_surface(srf_fobj):
     """

@@ -99,6 +99,7 @@ class Surface_Plotter:
         key = event.key
 
         if key == ' ':
+            """self.read_surfaces()"""
             self.index = (self.index + 1+ self.show_every) if not self.reverse else (self.index - 1- self.show_every)
             self.update_plot()
         elif key.isdigit():
@@ -136,8 +137,8 @@ class Surface_Plotter:
 
         if 0 <= self.index < len(self.surface_data):
             current_surface, current_time =self.surface_data[self.index]
-            self.ax.plot(current_surface.x,current_surface.y,"b", label=f"Time: {current_time}")
-            self.ax.set_title("Surface Plot")
+            self.ax.plot(current_surface.x,current_surface.y,"b")
+            self.ax.set_title(f"Time: {current_time}")
             self.ax.set_xlabel("X Position (nm)")
             self.ax.set_ylabel("Y Position (nm)")
 
@@ -149,7 +150,6 @@ class Surface_Plotter:
                 self.ax.set_ylim(-180,5)
                 self.ax.set_xlim(-150, 150)
 
-            self.ax.legend()
             self.fig.canvas.draw_idle()
         elif self.index>=len(self.surface_data):
             print("last surface already plotted")
