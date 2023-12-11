@@ -25,7 +25,6 @@ def minitopsim():
     if not write_surface(surface, 0, filename + '.srf'):
         exit()
 
-
     while dt > 0:
         surface = advance(surface, dt, par.ETCH_RATE)
         if not write_surface(surface, time + dt, filename + '.srf'):
@@ -36,26 +35,5 @@ def minitopsim():
 
     if par.PLOT_SURFACE:
         plot(filename + '.srf')
-
-    """        surface.plot("Initial Surface")
-
-    # Move surface over time until tend is reached
-    while dt > 0:
-        surface = advance(surface, dt, par.ETCH_RATE)
-        if not write_surface(surface, time + dt, filename + '.srf'):
-            exit()
-        time += dt
-        dt = timestep(dt, time, tend)
-        print(f'time = {time}, dt = {dt}')
-
-    # Plot final surface and save plot
-    if par.PLOT_SURFACE:
-        surface.plot("Final Surface")
-        plt.legend()
-        plt.title(f'Sputtering yield simulation, tend = {tend}s, dt = '
-                f'{par.TIME_STEP}s')
-
-        plt.savefig(filename + '.png')
-        plt.show()"""
 
     return True

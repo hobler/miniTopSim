@@ -63,17 +63,3 @@ class Surface:
 
         return normal_vecs
 
-    def plot(self, name):
-        
-        """""A 2D plot of the surface.
-
-        Args:
-            filename (str): The name of the file to which the plot is
-            saved."""""
-
-        plt.plot(self.x, self.y, 'o-', markersize=2, label=name)
-        plt.xticks(np.arange(-60, 61, 20))
-        plt.yticks(np.arange(-120, 21, 20))
-        plt.xlabel('x [nm]')
-        plt.ylabel('y [nm]')
-        plt.grid()
