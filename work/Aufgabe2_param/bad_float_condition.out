@@ -1,0 +1,1 @@
+ERROR: Attribute FUN_XMAX (-25.0) doesn't meet condition FUN_XMAX <= XMAX and FUN_XMAX > FUN_XMIN!
