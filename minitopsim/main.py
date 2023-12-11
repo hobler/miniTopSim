@@ -4,6 +4,7 @@ Main script and function to run miniTopSim.
 import minitopsim.parameters as par
 from minitopsim.advance import advance, timestep
 from minitopsim.io_surface import init_surface, write_surface
+from minitopsim.plot import plot
 
 import sys
 import matplotlib.pyplot as plt
@@ -24,10 +25,6 @@ def minitopsim():
     if not write_surface(surface, 0, filename + '.srf'):
         exit()
 
-    if par.PLOT_SURFACE:
-        surface.plot("Initial Surface")
-
-    # Move surface over time until tend is reached
     while dt > 0:
         surface = advance(surface, dt, par.ETCH_RATE)
         if not write_surface(surface, time + dt, filename + '.srf'):
@@ -36,14 +33,7 @@ def minitopsim():
         dt = timestep(dt, time, tend)
         print(f'time = {time}, dt = {dt}')
 
-    # Plot final surface and save plot
     if par.PLOT_SURFACE:
-        surface.plot("Final Surface")
-        plt.legend()
-        plt.title(f'Sputtering yield simulation, tend = {tend}s, dt = '
-                f'{par.TIME_STEP}s')
-
-        plt.savefig(filename + '.png')
-        plt.show()
+        plot(filename + '.srf')
 
     return True
