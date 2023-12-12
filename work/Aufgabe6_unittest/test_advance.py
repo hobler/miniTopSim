@@ -35,7 +35,7 @@ def set_surface():
     return surface
 
 
-@pytest.mark.unittest
+@pytest.mark.showcase
 def test_surface_normal(set_surface):
     """
     test for the normal vector for a set of 3 points defined in _set_surface.
@@ -43,34 +43,30 @@ def test_surface_normal(set_surface):
     Args:
         set_surface(fixture): init a surface
     """
-    # todo improve readability
-    #   get rid of arrays
     surf = set_surface
-    # calc surface normal
-    x_ref = np.diff(surf.x)
-    y_ref = np.diff(surf.y)
-    # make an array for norm function
-    temp = np.vstack((x_ref, y_ref))
-    temp /= np.linalg.norm(temp, axis=0)
+    # make 2D-array and get distance to next point
+    vec_diff = np.diff(np.vstack((surf.x, surf.y)), axis=1)
+    vec_diff /= np.linalg.norm(vec_diff, axis=0)
 
-    x_ref = temp[0][:-1] + temp[0][1:]
-    y_ref = temp[1][:-1] + temp[1][1:]
+    # summe of next neighbours
+    x_ref = vec_diff[0][:-1] + vec_diff[0][1:]
+    y_ref = vec_diff[1][:-1] + vec_diff[1][1:]
 
-    n_vec_ref = np.vstack((y_ref, -x_ref))
-    n_vec_ref /= np.linalg.norm(n_vec_ref, axis=0)
-    x_ref = n_vec_ref[0][0]
-    y_ref = n_vec_ref[1][0]
+    # calculate angle bisector and normalize it
+    bisec_ref = np.vstack((y_ref, -x_ref))
+    bisec_n_ref = bisec_ref / np.linalg.norm(bisec_ref, axis=0)
 
-    n_vecs = surf.normal_vector()
-    x = n_vecs[:, 1][0]
-    y = n_vecs[:, 1][1]
+    # match pattern from surf.normal_vector() by adding norm vecs to the edge
+    edge_vec = np.array(((0.,), (-1.,)))
+    bisec_n_ref = np.concatenate((edge_vec, bisec_n_ref, edge_vec),
+                                 axis=1)
 
-    # test for x in range
-    assert abs(x_ref - x) <= FLOATING_ERROR, \
-        f'diff in x:{abs(x_ref - x)} is not in limit {FLOATING_ERROR}'
-    # test for y in range
-    assert abs(y_ref - y) <= FLOATING_ERROR, \
-        f'diff in y:{abs(y_ref - y)} is not in limit {FLOATING_ERROR}'
+    # get test data
+    bisec_n = surf.normal_vector()
+
+    assert np.all(abs(bisec_n_ref - bisec_n) <= FLOATING_ERROR), \
+        (f'difference :{abs(bisec_n_ref - bisec_n)} '
+         f'is not in limit {FLOATING_ERROR}')
 
 
 @pytest.fixture
@@ -82,6 +78,7 @@ def set_advance_param():
     par.__dict__['TIME_STEP'] = 1
 
 
+@pytest.mark.showcase
 @pytest.mark.unittest
 def test_advance(set_advance_param, set_surface):
     """
@@ -91,20 +88,16 @@ def test_advance(set_advance_param, set_surface):
         set_advance_param(fixture): to set parameters
         set_surface(fixture): to init a surface
     """
-    # todo _test_advance: cleanup ref stuff
     # get referenz values
-    d_t = par.TIME_STEP
-    etch_r = par.ETCH_RATE
     surf = set_surface
-    n_vecs = surf.normal_vector()
-    x_ref = surf.x
-    y_ref = surf.y
+    norm_vecs = surf.normal_vector()
 
-    x_ref += n_vecs[0]*d_t*etch_r
-    y_ref += n_vecs[1]*d_t*etch_r
+    # calculation of the new surface
+    x_ref = surf.x + norm_vecs[0] * par.TIME_STEP * par.ETCH_RATE
+    y_ref = surf.y + norm_vecs[1] * par.TIME_STEP * par.ETCH_RATE
 
-    # get test values
-    surf_adv = adv.advance(surf, d_t, etch_r)
+    # get test data
+    surf_adv = adv.advance(surf, par.TIME_STEP, par.ETCH_RATE)
     x = surf_adv.x
     y = surf_adv.y
 

@@ -22,14 +22,12 @@ fixtures:
     _set_default_values_par:
         loads the default values form the databank
 """
-
 import configparser
 import pytest
 import os
 import glob
 
 import minitopsim.parameters as par
-
 
 # read test files and sort in good and bad
 path = os.path.join(os.path.dirname(__file__), 'cfg_test_files')
@@ -124,6 +122,5 @@ def test_load_bad_parameters(set_default_values_par, cfg_file):
         set_default_values_par(fixture): sets the default values.
         cfg_file(string): path to cfg-file
     """
-
     with pytest.raises(Exception):
         par.load_parameters(cfg_file)
