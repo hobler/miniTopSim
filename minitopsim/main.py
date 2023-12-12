@@ -1,49 +1,40 @@
 """
 Main script and function to run miniTopSim.
 """
-from minitopsim import parameters as par
+import minitopsim.parameters as par
+from minitopsim.advance import advance, timestep
+from minitopsim.io_surface import init_surface, write_surface
+from minitopsim.plot import plot
+
 import sys
 import matplotlib.pyplot as plt
 
-sys.path.append("..")
-from work.Aufgabe1_basic.advance import advance, timestep
-from work.Aufgabe1_basic.io_surface import init_surface, write_surface
-from work.Aufgabe1_basic.surface import Surface
 
 def minitopsim():
-   print('Running miniTopSim ...')
-   print(f'TestParameter={par.TestParameter}')
+    par.load_parameters(sys.argv[1])
 
-   time = 0
-   tend = float(sys.argv[1])
-   dt = timestep(float(sys.argv[2]), time, tend)  
-   filename = f'basic_{tend}_{dt}'
+    time = 0
+    tend = par.TOTAL_TIME
+    dt = timestep(par.TIME_STEP, time, tend)
+    filename = sys.argv[1].replace('.cfg', '')
 
-   # Initialize the surface
-   surface = init_surface()
+    # Initialize the surface
+    surface = init_surface()
 
-   # Write and plot initial surface 
-   write_surface(surface, 0, filename + '.srf')
-   surface.plot("Initial Surface")
+    # Write and plot initial surface
+    if not write_surface(surface, 0, filename + '.srf'):
+        exit()
 
-   # Move surface over time until tend is reached
-   while dt > 0:
-      surface = advance(surface, dt)
-      write_surface(surface, time + dt, filename + '.srf')
-      time += dt
-      dt = timestep(dt, time, tend)
-      print("time = ", time, "dt = ", dt)
+    while dt > 0:
+        surface = advance(surface, dt, par.ETCH_RATE)
+        if not write_surface(surface, time + dt, filename + '.srf'):
+            exit()
+        time += dt
+        dt = timestep(dt, time, tend)
+        print(f'time = {time}, dt = {dt}')
 
-   # Plot final surface and save plot
-   surface.plot("Final Surface")
-   plt.legend()
-   plt.title("Sputtering yield simulation, tend = " + str(tend) + 
-             "s, dt = " + sys.argv[2] +"s")
+    if par.PLOT_SURFACE:
+        plot(filename + '.srf')
 
-   plt.savefig(filename + '.png')
-   plt.show()
-
-   return True
-
-
+    return True
 
