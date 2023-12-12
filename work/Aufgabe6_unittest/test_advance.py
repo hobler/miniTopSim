@@ -2,8 +2,14 @@
 
 """
 import pytest
-import minitopsim.surface as srf
 import numpy as np
+
+import minitopsim.surface as srf
+import minitopsim.parameters as par
+import minitopsim.advance as adv
+
+
+_FLOATING_ERROR = 0.001
 
 
 @pytest.fixture
@@ -47,24 +53,50 @@ def test_surface_normal(_set_surface):
     x = n_vecs[:, 1][0]
     y = n_vecs[:, 1][1]
 
-    # define the max error
-    delta = 0.001
-
     # test for x in range
-    assert abs(x_ref-x) <= delta, \
-        f'diff in x:{abs(x_ref-x)} is not in limit {delta}'
+    assert abs(x_ref - x) <= _FLOATING_ERROR, \
+        f'diff in x:{abs(x_ref - x)} is not in limit {_FLOATING_ERROR}'
     # test for y in range
-    assert abs(y_ref-y) <= delta, \
-        f'diff in y:{abs(y_ref-y)} is not in limit {delta}'
+    assert abs(y_ref - y) <= _FLOATING_ERROR, \
+        f'diff in y:{abs(y_ref - y)} is not in limit {_FLOATING_ERROR}'
 
 
 @pytest.fixture
 def _set_advance_param():
     """
-
+    setting ETCH_RATE and TIME_STEP
     """
+    par.__dict__['ETCH_RATE'] = 5
+    par.__dict__['TIME_STEP'] = 1
 
 
-@pytest.mark.workinprogress
-def test_advance(_set_advance_param):
-    assert False, f'emtpy test_advance'
+@pytest.mark.unittest
+def test_advance(_set_advance_param, _set_surface):
+    """
+    todo: docstring test_advance
+
+    Args:
+        _set_advance_param:
+        _set_surface:
+    """
+    # todo _test_advance: cleanup ref stuff
+    # get referenz values
+    d_t = par.TIME_STEP
+    etch_r = par.ETCH_RATE
+    surf = _set_surface
+    n_vecs = surf.normal_vector()
+    x_ref = surf.x
+    y_ref = surf.y
+
+    x_ref += n_vecs[0]*d_t*etch_r
+    y_ref += n_vecs[1]*d_t*etch_r
+
+    # get test values
+    surf_adv = adv.advance(surf, d_t, etch_r)
+    x = surf_adv.x
+    y = surf_adv.y
+
+    assert np.all(abs(x_ref - x) <= _FLOATING_ERROR), \
+        f'diff in x:{abs(x_ref - x)} is not in limit {_FLOATING_ERROR}'
+    assert np.all(abs(y_ref - y) <= _FLOATING_ERROR), \
+        f'diff in y:{abs(y_ref - y)} is not in limit {_FLOATING_ERROR}'
