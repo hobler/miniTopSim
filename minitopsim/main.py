@@ -7,7 +7,6 @@ from minitopsim.io_surface import init_surface, write_surface
 from minitopsim.plot import plot
 
 import sys
-import matplotlib.pyplot as plt
 
 
 def minitopsim():

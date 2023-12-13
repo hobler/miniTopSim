@@ -1,8 +1,9 @@
+import minitopsim.parameters as par
 import os
 import sys
 
 sys.path.insert(0, os.getcwd())
-import minitopsim.parameters as par
+
 
 cfg_file = sys.argv[1]
 out_file = cfg_file.replace(".cfg", ".out")

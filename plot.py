@@ -1,3 +1,6 @@
+import sys
+
 from minitopsim.plot import plot
 
-plot("trench.srf")
+
+plot(sys.argv[1])
