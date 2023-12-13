@@ -74,6 +74,7 @@ def write_surface(surface, time, srf_fobject):
 
     return True
 
+
 def read_surface(srf_fobj):
     """
     Reads surface information from a file-like object.

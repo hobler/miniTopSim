@@ -1,7 +1,8 @@
 """
 File: surface_plotter.py
 
-A script for plotting surfaces and providing interactive navigation using Matplotlib.
+A script for plotting surfaces and providing interactive navigation using
+Matplotlib.
 
 Classes:
     SurfacePlotter: A class for managing the plotting functionality.
@@ -33,19 +34,25 @@ class Surface_Plotter:
 
     Attributes:
         srf_file (str): The name of the surface file to be plotted.
-        surface_data (list): List containing tuples of surface data and corresponding times.
+        surface_data (list): List containing tuples of surface data and
+        corresponding times.
         index (int): Current index of the displayed surface in surface_data.
         show_every (int): Step size for showing surfaces during navigation.
         reverse (bool): Flag indicating whether to navigate in reverse.
-        aspect_ratio_auto (bool): Flag indicating whether to automatically adjust aspect ratio.
-        delete_previous (bool): Flag indicating whether to delete the previous plot before updating.
+        aspect_ratio_auto (bool): Flag indicating whether to automatically
+        adjust aspect ratio.
+        delete_previous (bool): Flag indicating whether to delete the previous
+        plot before updating.
         save_plot (bool): Flag indicating whether to save the plot.
-        adjust_boundaries (bool): Flag indicating whether to adjust plot boundaries.
+        adjust_boundaries (bool): Flag indicating whether to adjust plot
+        boundaries.
 
     Methods:
         initialize_plot(): Initialize the Matplotlib plot.
-        read_surfaces(): Read surface data from a file and populate surface_data.
-        on_key_press(event): Handle key press events for navigation and other actions.
+        read_surfaces(): Read surface data from a file and populate
+        surface_data.
+        on_key_press(event): Handle key press events for navigation and other
+        actions.
         update_plot(): Update the Matplotlib plot based on current settings.
         start_plotting(): Start the interactive plot.
     """
@@ -71,12 +78,10 @@ class Surface_Plotter:
         self.save_plot = False
         self.adjust_boundaries = True
 
-        # read all surface files at initialization
+        # Read all surfaces at initialization
         self.read_surfaces()
 
-        # Weitere Initialisierungen können hier erfolgen
-
-        # Erstelle den ersten Plot
+        # Create the first plot
         self.fig, self.ax = plt.subplots()
         self.update_plot()
 
@@ -100,7 +105,8 @@ class Surface_Plotter:
 
         if key == ' ':
             """self.read_surfaces()"""
-            self.index = (self.index + 1 + self.show_every) if not self.reverse else (self.index - 1 - self.show_every)
+            self.index = (self.index + 1 + self.show_every) if not \
+                self.reverse else (self.index - 1 - self.show_every)
             self.update_plot()
         elif key.isdigit():
             n = int(key)
@@ -120,7 +126,8 @@ class Surface_Plotter:
             self.delete_previous = not self.delete_previous
         elif key == 's':
             file = os.path.split(self.srf_file)[1]
-            plt.savefig(os.path.join(os.getcwd(), f"{os.path.splitext(file)[0]}.png"))
+            self.fig.savefig(os.path.join(
+                os.getcwd(), f"{os.path.splitext(file)[0]}.png"))
             print("file saved")
         elif key == 'b':
             self.adjust_boundaries = not self.adjust_boundaries

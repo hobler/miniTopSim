@@ -62,4 +62,3 @@ class Surface:
         normal_vecs /= np.linalg.norm(normal_vecs, axis=0)
 
         return normal_vecs
-
