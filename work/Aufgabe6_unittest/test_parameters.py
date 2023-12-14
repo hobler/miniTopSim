@@ -36,9 +36,11 @@ if os.path.exists(path):
         raise FileNotFoundError(f'"{path}" is not a directory.')
 else:
     raise FileNotFoundError(f'Directory "{path}" does not exist.')
+
 # sort in good and bad files, and fetch names
 good_files = glob.glob(os.path.join(path, 'good*.cfg'))
 good_names = [os.path.basename(file) for file in good_files]
+
 bad_files = glob.glob(os.path.join(path, 'bad*.cfg'))
 bad_names = [os.path.basename(file) for file in bad_files]
 
@@ -48,7 +50,7 @@ def set_default_values_par():
     """
     Set default values from databank to parameters-namespace.
 
-    This is necessary to clean up residual values for next test case.
+    to clean up residual values for next test case.
     """
     # construct the path to databank via parameters.py
     file = os.path.join(os.path.dirname(par._file), 'parameters.db')

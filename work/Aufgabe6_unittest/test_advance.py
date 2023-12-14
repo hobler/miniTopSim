@@ -1,11 +1,11 @@
 """
-Test cases to test the etching algorithm (surface advancement and direction).
+Test cases for etching algorithm (surface advancement and direction).
 
 tests:
     surface_normal:
-        checks direction of etching
+        tests direction of etching
     advance:
-        checks the progression of etching
+        tests the progression of etching
 
 fixtures:
     set_surface:
@@ -35,7 +35,7 @@ def set_surface():
     return surface
 
 
-@pytest.mark.showcase
+@pytest.mark.unittest
 def test_surface_normal(set_surface):
     """
     test for the normal vector for a set of 3 points defined in _set_surface.
@@ -56,7 +56,7 @@ def test_surface_normal(set_surface):
     bisec_ref = np.vstack((y_ref, -x_ref))
     bisec_n_ref = bisec_ref / np.linalg.norm(bisec_ref, axis=0)
 
-    # match pattern from surf.normal_vector() by adding norm vecs to the edge
+    # match pattern from surf.normal_vector() by adding norm vecs to the edges
     edge_vec = np.array(((0.,), (-1.,)))
     bisec_n_ref = np.concatenate((edge_vec, bisec_n_ref, edge_vec),
                                  axis=1)
@@ -64,9 +64,9 @@ def test_surface_normal(set_surface):
     # get test data
     bisec_n = surf.normal_vector()
 
-    assert np.all(abs(bisec_n_ref - bisec_n) <= FLOATING_ERROR), \
-        (f'difference :{abs(bisec_n_ref - bisec_n)} '
-         f'is not in limit {FLOATING_ERROR}')
+    assert np.all(abs(bisec_n_ref - bisec_n) <= FLOATING_ERROR), (
+        f'difference :\n{abs(bisec_n_ref - bisec_n)} '
+        f'\nis not in limit {FLOATING_ERROR}')
 
 
 @pytest.fixture
@@ -88,7 +88,7 @@ def test_advance(set_advance_param, set_surface):
         set_advance_param(fixture): to set parameters
         set_surface(fixture): to init a surface
     """
-    # get referenz values
+    # initiate
     surf = set_surface
     norm_vecs = surf.normal_vector()
 
