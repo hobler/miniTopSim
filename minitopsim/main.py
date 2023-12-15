@@ -44,9 +44,6 @@ def minitopsim():
                 f'{par.TIME_STEP}s')
 
         plt.savefig(filename + '.png')
-        # if block is not set to false execution is trapped here
-        plt.show(block=False)
-
-
+        plt.show()
 
     return True

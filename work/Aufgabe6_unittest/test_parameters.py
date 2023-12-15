@@ -20,7 +20,7 @@ tests:
 
 fixtures:
     _set_default_values_par:
-        loads the default values form the databank
+        loads the default values form the database
 """
 import configparser
 import pytest
@@ -29,7 +29,7 @@ import glob
 
 import minitopsim.parameters as par
 
-# read test files and sort in good and bad
+# read test files and sort them in to good and bad cases
 path = os.path.join(os.path.dirname(__file__), 'cfg_test_files')
 if os.path.exists(path):
     if not os.path.isdir(path):
@@ -48,11 +48,11 @@ bad_names = [os.path.basename(file) for file in bad_files]
 @pytest.fixture()
 def set_default_values_par():
     """
-    Set default values from databank to parameters-namespace.
+    Set default values from database to parameters-namespace.
 
     to clean up residual values for next test case.
     """
-    # construct the path to databank via parameters.py
+    # construct the path to database via parameters.py
     file = os.path.join(os.path.dirname(par._file), 'parameters.db')
     def_config = configparser.ConfigParser()
     def_config.read(file)
@@ -60,7 +60,7 @@ def set_default_values_par():
     categories = dict()
     default_values = dict()
 
-    # get all attributes defined in databank file
+    # get all attributes defined in database file
     for section in def_config.sections():
         for attribute in def_config[section]:
             attribute = attribute.upper()
@@ -70,7 +70,7 @@ def set_default_values_par():
 
     # write default values to parameters namespace
     for key, value in default_values.items():
-        par.__dict__[key] = value
+        vars(par)[key] = value
 
 
 @pytest.mark.unittest
@@ -104,7 +104,7 @@ def test_load_good_parameters(set_default_values_par, cfg_file):
 
     # assert test for values
     for key, value in cfg_param.items():
-        assert par.__dict__[key] == value, (f'{key} has a different value '
+        assert vars(par)[key] == value, (f'{key} has a different value '
                                             f'than '
                                             f'{os.path.basename(cfg_file)} '
                                             f'suggests it should have.')
