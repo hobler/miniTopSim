@@ -87,7 +87,7 @@ def _check_and_set_attributes(new_values):
             raise ValueError(f'Attribute {key} is not assigned')
 
 
-def load_parameters(file):
+def load_parameters(file: object) -> object:
     """Load parameters from file.
 
     Args:
