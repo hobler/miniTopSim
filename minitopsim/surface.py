@@ -4,6 +4,9 @@ Module containing the class Surface.
 import numpy as np
 import matplotlib.pyplot as plt
 
+class Shadow_Error(Exception):
+    """Error during Shadow calculation in Surface Class"""
+    pass
 
 class Surface:
     """
@@ -85,48 +88,67 @@ class Surface:
     def get_shadows(self):
         """Returns a boolean mask of all the shadowed poits of the surface.
 
+        Important only use mask if Surface.has_shadows().
+
         Typical Usage:
             mask = surface.get_shadows()
             surface.x[mask]     #shadowed x-values
             surface.y[mask]     #shadowed y-values
 
-            Important only use mask like that if Surface has shadows.
+        Raises:
+            Shadow_Error: Shadow before/after the first/final Surface point.
         """
         shadows_mask = np.full_like(self.x, False, dtype=bool)
 
-        lastidx = 0
-        lastx = self.x[0]
+        firstx = self.x[0]
+        finalx = self.x[-1]
 
-        for i in range(1, self.x.size):
-            if self.x[i] <= lastx:
-                if self.y[i] <= self.y[lastidx]:
+        for i, (x, y) in enumerate(zip(self.x[1:], self.y[1:]), 1):
+            if x <= np.max(self.x[:i]):
+                if x < firstx:
+                    msg = "Shadow is before the first point of Surface."
+                    raise Shadow_Error(msg)
+                for j in range(i-1, -1, -1):
+                    if self.x[j] == x:
+                        interp_y = self.y[j]    #no interpolation needed
+                        break
+                    elif self.x[j] < x < self.x[j+1]:
+                        xp = self.x[j:j+2]
+                        yp = self.y[j:j+2]
+                        interp_y = np.interp(x, xp, yp)
+                        break
+                    elif self.x[j] > x > self.x[j+1]:
+                        xp = self.x[j+1:j-1:-1]
+                        yp = self.y[j+1:j-1:-1]
+                        interp_y = np.interp(x, xp, yp)
+                        break
+                if y <= interp_y:
+                        #shadowed point
+                        shadows_mask[i] = True
+
+        for i, (x, y) in reversed(list(enumerate(zip(self.x[:-1],
+                                                     self.y[:-1])))):
+            if x >= np.min(self.x[i+1:]):
+                if x > finalx:
+                    msg = "Shadow is after the final point of Surface."
+                    raise Shadow_Error(msg)
+                for j in range(i+1, self.x.size):
+                    if self.x[j] == x:
+                        interp_y = self.y[j]    #no interpolation needed
+                        break
+                    elif self.x[j-1] < x < self.x[j]:
+                        xp = self.x[j-1:j+1]
+                        yp = self.y[j-1:j+1]
+                        interp_y = np.interp(x, xp, yp)
+                        break
+                    elif self.x[j-1] > x > self.x[j]:
+                        xp = self.x[j:j-2:-1]
+                        yp = self.y[j:j-2:-1]
+                        interp_y = np.interp(x, xp, yp)
+                        break
+                if y <= interp_y:
                     #shadowed point
                     shadows_mask[i] = True
-                else:
-                    #shadows the previous point
-                    shadows_mask[lastidx] = True
-                    lastidx = i
-                    lastx = self.x[i]
-            else:
-                lastidx = i
-                lastx = self.x[i]
-
-        lastidx = -1
-        lastx = self.x[-1]
-
-        for i in range(-2, -self.x.size+1, -1):
-            if self.x[i] >= lastx:
-                if self.y[i] <= self.y[lastidx]:
-                    #shadowed point
-                    shadows_mask[i] = True
-                else:
-                    #shadows the previous point
-                    shadows_mask[lastidx] = True
-                    lastidx = i
-                    lastx = self.x[i]
-            else:
-                lastidx = i
-                lastx = self.x[i]
 
         return shadows_mask
 

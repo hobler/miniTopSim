@@ -39,7 +39,6 @@ def advance(surface, dtime):
 
     return new_surface, dtime
 
-
 def timestep(dt, time, tend):
     """
     Calculates the time step at a given time.
@@ -75,8 +74,7 @@ def get_velocities(surface):
     normal_vec = surface.normal_vector()
 
     if par.ETCHING:
-        v_normal = np.ones(surface.x.size)
-        v_normal *= par.ETCH_RATE    #normal velocity [nm/s]
+        v_normal = np.full_like(surface.x, par.ETCH_RATE)  #normal velocity [nm/s]
     else:
         cos_theta = -normal_vec[1]
         Y_s = sput.get_sputter_yield(cos_theta)
