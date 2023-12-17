@@ -1,13 +1,12 @@
 """
 Main script and function to run miniTopSim.
 """
-import minitopsim.parameters as par
+from . import parameters as par
 from minitopsim.advance import advance, timestep
 from minitopsim.io_surface import init_surface, write_surface
 from minitopsim.plot import plot
 
 import sys
-
 
 def minitopsim():
     par.load_parameters(sys.argv[1])
@@ -25,15 +24,14 @@ def minitopsim():
         exit()
 
     while dt > 0:
-        surface = advance(surface, dt, par.ETCH_RATE)
-        if not write_surface(surface, time + dt, filename + '.srf'):
-            exit()
+        surface, dt = advance(surface, dt)
         time += dt
-        dt = timestep(dt, time, tend)
+        if not write_surface(surface, time, filename + '.srf'):
+            exit()
         print(f'time = {time}, dt = {dt}')
+        dt = timestep(par.TIME_STEP, time, tend)
 
     if par.PLOT_SURFACE:
         plot(filename + '.srf')
 
     return True
-

@@ -60,6 +60,7 @@ def set_advance_param():
     """
     par.ETCH_RATE = 5
     par.TIME_STEP = 1
+    par.ETCHING = True
 
 
 @pytest.mark.unittest
@@ -76,7 +77,7 @@ def test_advance(set_advance_param, set_surface):
     y_ref = np.array([-5., -4.25325404, -3.])
 
     # get test data
-    surf_adv = adv.advance(set_surface, par.TIME_STEP, par.ETCH_RATE)
+    surf_adv, _ = adv.advance(set_surface, par.TIME_STEP)
     x = surf_adv.x
     y = surf_adv.y
 
