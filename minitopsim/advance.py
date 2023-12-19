@@ -29,6 +29,8 @@ def advance(surface, dtime):
     x += velocity[0] * dtime
     y += velocity[1] * dtime
 
+    surface.deloop()
+
     new_surface = Surface(x, y)
 
     if par.INTERPOLATION:
