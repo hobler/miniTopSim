@@ -12,6 +12,9 @@ def advance(surface, dtime):
     """
     Calculates the new surface after a time step.
 
+    If INTERPLATION is set, the function recursively calls itself,
+    with half dtime, until the new_surface has no shadows.
+
     Args:
         surface (Surface): The surface to be moved.
         dtime (float): The time step size.

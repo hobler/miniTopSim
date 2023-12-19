@@ -106,9 +106,8 @@ class Surface:
                         yp = self.y[j+1:j-1:-1]
                         interp_y = np.interp(x, xp, yp)
                         break
-                if y <= interp_y:
-                        #shadowed point
-                        shadows_mask[i] = True
+                #potentially shadowed point
+                shadows_mask[i] = (y <= interp_y)
 
         for i, (x, y) in reversed(list(enumerate(zip(self.x[:-1],
                                                      self.y[:-1])))):
@@ -130,9 +129,8 @@ class Surface:
                         yp = self.y[j:j-2:-1]
                         interp_y = np.interp(x, xp, yp)
                         break
-                if y <= interp_y:
-                    #shadowed point
-                    shadows_mask[i] = True
+                #potentially shadowed point
+                shadows_mask[i] = shadows_mask[i] or (y <= interp_y)
 
         return shadows_mask
 
