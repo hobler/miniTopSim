@@ -148,7 +148,7 @@ class Surface:
         self.x = xnew
         self.y = ynew
 
-    def deloop(self):
+    def deloop(self, x, y):
         """
         Calculates a new sequence of point coordinates by eliminating
         loops.
@@ -158,8 +158,8 @@ class Surface:
             y (array(float)): The y-coordinates of the points without loops.
 
         """
-        x = np.array(self.x)
-        y = np.array(self.y)
+        x = np.array(x)
+        y = np.array(y)
 
         # calculate difference between points, append (1,0) for last
         # point
@@ -215,5 +215,4 @@ class Surface:
             x = np.concatenate([x[:j + 1], [x_neu], x[i + 1:]])
             y = np.concatenate([y[:j + 1], [y_neu], y[i + 1:]])
 
-        self.x = x
-        self.y = y
+        return x, y

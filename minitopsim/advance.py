@@ -29,7 +29,7 @@ def advance(surface, dtime):
     x += velocity[0] * dtime
     y += velocity[1] * dtime
 
-    surface.deloop()
+    x, y = surface.deloop(x,y)
 
     new_surface = Surface(x, y)
 
