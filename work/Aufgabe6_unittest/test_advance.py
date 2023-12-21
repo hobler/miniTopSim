@@ -56,7 +56,7 @@ def test_surface_normal(set_surface):
 @pytest.fixture
 def set_advance_param():
     """
-    setting ETCH_RATE=5 and TIME_STEP=1
+    setting ETCH_RATE=5 and TIME_STEP=1 and ETCHING=True
     """
     par.ETCH_RATE = 5
     par.TIME_STEP = 1
