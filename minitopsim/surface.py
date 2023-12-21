@@ -150,69 +150,49 @@ class Surface:
 
     def deloop(self, x, y):
         """
-        Calculates a new sequence of point coordinates by eliminating
-        loops.
+        Calculates a new sequence of point coordinates by eliminating loops.
 
         Returns:
-            x (array(float)): The x-coordinates of the points without loops.
-            y (array(float)): The y-coordinates of the points without loops.
+            x_delooped (array(float)): The x-coordinates of the points without loops.
+            y_delooped (array(float)): The y-coordinates of the points without loops.
 
         """
-        x = np.array(x)
-        y = np.array(y)
-
-        # calculate difference between points, append (1,0) for last
-        # point
+        x_local = x.tolist()
+        y_local = y.tolist()
+        k = 0
+        x_delooped = []
+        y_delooped = []
         dx = np.diff(x)
         dy = np.diff(y)
-
         xi, xj = np.meshgrid(x, x)
         yi, yj = np.meshgrid(y, y)
-
-        # forming an array of coefficients and answers for systems of
-        # linear equations of the form Ах=В
-        b1 = xj - xi
-        b1 = b1[:-1, :-1]
-        b2 = yj - yi
-        b2 = b2[:-1, :-1]
-        b = np.dstack((b1, b2))
-
         dxi, dxj = np.meshgrid(dx, dx)
         dyi, dyj = np.meshgrid(dy, dy)
-
-        a1 = np.dstack((dxi, -dxj))
-        a2 = np.dstack((dyi, -dyj))
-        a = np.concatenate((a1[:, :, np.newaxis, :], a2[:, :, np.newaxis, :]), axis=2)
-
         shape = (dx.size, dx.size, 2)
         check = np.full(shape, 2.)
-
-        # solution of the system, with the filling of equations that
-        # do not have a non-zero solution and the main and adjacent
-        # diagonals with answers [2,2]
-        def solve_system(a, b):
-            try:
-                return np.linalg.solve(a, b)
-            except np.linalg.LinAlgError:
-                return np.array([2, 2])
 
         for i in range(dx.size):
             for j in range(dx.size):
                 if (i < j - 1):
-                    check[i, j] = solve_system(a[i, j], b[i, j])
+                    a = [[dxi[i, j], -dxj[i, j]], [dyi[i, j], -dyj[i, j]]]
+                    b = [xj[i, j] - xi[i, j], yj[i, j] - yi[i, j]]
+                    try:
+                        check[i, j] = np.linalg.solve(a, b)
+                    except:
+                        check[i, j] = [2, 2]
+                    if ((check[i, j, 0] >= 0) & (check[i, j, 0] < 1) &
+                            (check[i, j, 1] >= 0) & (check[i, j, 1] < 1)):
+                        t = check[i, j, 0]
+                        x_neu = x[j] + dx[j] * t
+                        y_neu = y[j] + dy[j] * t
+                        x_delooped = x_delooped + x_local[k: i + 1] + [x_neu]
+                        y_delooped = y_delooped + y_local[k: i + 1] + [y_neu]
+                        k = j + 1
 
-        # an array with numbers of intersecting segments
-        cross = np.argwhere((check[:, :, 0] >= 0) & (check[:, :, 0] < 1) &
-                            (check[:, :, 1] >= 0) & (check[:, :, 1] < 1))
+        x_delooped = x_delooped + x_local[k:dx.size + 1]
+        y_delooped = y_delooped + y_local[k:dy.size + 1]
 
-        # destruction of loops
-        for k in range(cross.shape[0] - 1, -1, -1):
-            i = cross[k, 1]
-            j = cross[k, 0]
-            t = check[j, i, 0]
-            x_neu = x[i] + dx[i] * t
-            y_neu = y[i] + dy[i] * t
-            x = np.concatenate([x[:j + 1], [x_neu], x[i + 1:]])
-            y = np.concatenate([y[:j + 1], [y_neu], y[i + 1:]])
+        x_delooped = np.array(x_delooped)
+        y_delooped = np.array(y_delooped)
 
-        return x, y
+        return x_delooped, y_delooped
