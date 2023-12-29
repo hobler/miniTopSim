@@ -6,6 +6,7 @@ from minitopsim.advance import advance, timestep
 from minitopsim.io_surface import init_surface, write_surface
 from minitopsim.plot import plot
 from minitopsim.surface import Shadow_Error
+from time import process_time
 
 import sys
 
@@ -25,6 +26,7 @@ def minitopsim():
         exit()
 
     try:
+        t_start = process_time()
         while dt > 0:
             surface, dt = advance(surface, dt)
             time += dt
@@ -32,6 +34,8 @@ def minitopsim():
                 exit()
             print(f'time = {time}, dt = {dt}')
             dt = timestep(par.TIME_STEP, time, tend)
+        t_stop = process_time()
+        print("Calculation time:", t_stop - t_start, "s")
     except Shadow_Error as err_msg:
         print(f"A Shadow_Error occurred: {err_msg}")
         print(f"Simulation was stopped at {time}s.")

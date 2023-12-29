@@ -28,5 +28,5 @@ if __name__ == '__main__':
     axs[1, 0].plot(x_loops_2, y_loops_2, "g*-")
     axs[1, 1].plot(x_delooped_2, y_delooped_2, "g*-")
 
-    plt.savefig("check_deloop.png")
+    # plt.savefig("check_deloop.png")
     plt.show()

@@ -173,13 +173,13 @@ class Surface:
             for j in range(dx.size):
                 if (i < j - 1):
                     a = [[dxi[i, j], -dxj[i, j]], [dyi[i, j], -dyj[i, j]]]
-                    b = [xj[i, j] - xi[i, j], yj[i, j] - yi[i, j]]
+                    b = [xj[i, j] - xi[i, j], yj[i, j] - yi[i, j]]         # create coefficient arrays
                     try:
-                        check[i, j] = np.linalg.solve(a, b)
+                        check[i, j] = np.linalg.solve(a, b)      # trying to solve system of equations
                     except:
                         check[i, j] = [2, 2]
                     if ((check[i, j, 0] >= 0) & (check[i, j, 0] < 1) &
-                            (check[i, j, 1] >= 0) & (check[i, j, 1] < 1)):
+                            (check[i, j, 1] >= 0) & (check[i, j, 1] < 1)):    # finding intersections
                         t = check[i, j, 0]
                         x_neu = x[j] + dx[j] * t
                         y_neu = y[j] + dy[j] * t
