@@ -3,9 +3,11 @@ Module containing the class Surface.
 """
 import numpy as np
 
+
 class Shadow_Error(Exception):
     """Error during Shadow calculation in Surface Class"""
     pass
+
 
 class Surface:
     """
@@ -94,7 +96,7 @@ class Surface:
                     raise Shadow_Error(msg)
                 for j in range(i-1, -1, -1):
                     if self.x[j] == x:
-                        interp_y = self.y[j]    #no interpolation needed
+                        interp_y = self.y[j]    # no interpolation needed
                         break
                     elif self.x[j] < x < self.x[j+1]:
                         xp = self.x[j:j+2]
@@ -106,7 +108,7 @@ class Surface:
                         yp = self.y[j+1:j-1:-1]
                         interp_y = np.interp(x, xp, yp)
                         break
-                #potentially shadowed point
+                # potentially shadowed point
                 shadows_mask[i] = (y <= interp_y)
 
         for i, (x, y) in reversed(list(enumerate(zip(self.x[:-1],
@@ -117,7 +119,7 @@ class Surface:
                     raise Shadow_Error(msg)
                 for j in range(i+1, self.x.size):
                     if self.x[j] == x:
-                        interp_y = self.y[j]    #no interpolation needed
+                        interp_y = self.y[j]    # no interpolation needed
                         break
                     elif self.x[j-1] < x < self.x[j]:
                         xp = self.x[j-1:j+1]
@@ -129,7 +131,7 @@ class Surface:
                         yp = self.y[j:j-2:-1]
                         interp_y = np.interp(x, xp, yp)
                         break
-                #potentially shadowed point
+                # potentially shadowed point
                 shadows_mask[i] = shadows_mask[i] or (y <= interp_y)
 
         return shadows_mask
@@ -146,7 +148,7 @@ class Surface:
         self.x = xnew
         self.y = ynew
 
-    def deloop(self, x, y):
+    def deloop(self):
         """
         Calculates a new sequence of point coordinates by eliminating loops.
 
@@ -155,6 +157,8 @@ class Surface:
             y_delooped (array(float)): The y-coordinates of the points without loops.
 
         """
+        x = self.x
+        y = self.y
         x_local = x.tolist()
         y_local = y.tolist()
         k = 0
@@ -162,30 +166,23 @@ class Surface:
         y_delooped = []
         dx = np.diff(x)
         dy = np.diff(y)
-        xi, xj = np.meshgrid(x, x)
-        yi, yj = np.meshgrid(y, y)
-        dxi, dxj = np.meshgrid(dx, dx)
-        dyi, dyj = np.meshgrid(dy, dy)
-        shape = (dx.size, dx.size, 2)
-        check = np.full(shape, 2.)
 
-        for i in range(dx.size):
-            for j in range(dx.size):
-                if (i < j - 1):
-                    a = [[dxi[i, j], -dxj[i, j]], [dyi[i, j], -dyj[i, j]]]
-                    b = [xj[i, j] - xi[i, j], yj[i, j] - yi[i, j]]         # create coefficient arrays
-                    try:
-                        check[i, j] = np.linalg.solve(a, b)      # trying to solve system of equations
-                    except:
-                        check[i, j] = [2, 2]
-                    if ((check[i, j, 0] >= 0) & (check[i, j, 0] < 1) &
-                            (check[i, j, 1] >= 0) & (check[i, j, 1] < 1)):    # finding intersections
-                        t = check[i, j, 0]
-                        x_neu = x[j] + dx[j] * t
-                        y_neu = y[j] + dy[j] * t
-                        x_delooped = x_delooped + x_local[k: i + 1] + [x_neu]
-                        y_delooped = y_delooped + y_local[k: i + 1] + [y_neu]
-                        k = j + 1
+        for i in range(dx.size-2):
+            for j in range(i+2, dx.size):
+                a = [[dx[j], -dx[i]], [dy[j], -dy[i]]]
+                b = [x[i] - x[j], y[i] - y[j]]              # create coefficient arrays
+                try:
+                    check_t, check_k = np.linalg.solve(a, b)      # trying to solve system of equations
+                except np.linalg.LinAlgError:
+                    check_t, check_k = [2, 2]
+                if ((check_t >= 0) & (check_t < 1) &
+                        (check_k >= 0) & (check_k < 1)):    # finding intersections
+                    t = check_t
+                    x_neu = x[j] + dx[j] * t
+                    y_neu = y[j] + dy[j] * t
+                    x_delooped = x_delooped + x_local[k: i + 1] + [x_neu]
+                    y_delooped = y_delooped + y_local[k: i + 1] + [y_neu]
+                    k = j + 1
 
         x_delooped = x_delooped + x_local[k:dx.size + 1]
         y_delooped = y_delooped + y_local[k:dy.size + 1]

@@ -14,10 +14,10 @@ if __name__ == '__main__':
 
     # surfaces without loops
     surface1 = Surface(x_loops_1, y_loops_1)
-    x_delooped_1, y_delooped_1 = surface1.deloop(x_loops_1, y_loops_1)
+    x_delooped_1, y_delooped_1 = surface1.deloop()
 
     surface2 = Surface(x_loops_2, y_loops_2)
-    x_delooped_2, y_delooped_2 = surface2.deloop(x_loops_2, y_loops_2)
+    x_delooped_2, y_delooped_2 = surface2.deloop()
 
     # plotting surfaces
     fig, axs = plt.subplots(2, 2, sharey=True)

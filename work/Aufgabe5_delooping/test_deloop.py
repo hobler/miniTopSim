@@ -34,10 +34,8 @@ def test_deloop(set_surface1, set_surface2):
         set_surface2(fixture): to init a surface2
     """
     # get test data
-    x1, y1 = set_surface1.x, set_surface1.y
-    delooped_x1, delooped_y1 = set_surface1.deloop(x1, y1)
-    x2, y2 = set_surface2.x, set_surface2.y
-    delooped_x2, delooped_y2 = set_surface1.deloop(x2, y2)
+    delooped_x1, delooped_y1 = set_surface1.deloop()
+    delooped_x2, delooped_y2 = set_surface2.deloop()
 
     # define reference data
     delooped_y_muster1 = np.array([2, 1.3333, 0, 0, 1.3333, 2])
