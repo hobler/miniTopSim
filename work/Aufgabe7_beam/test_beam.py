@@ -19,7 +19,8 @@ def set_gauss_beam():
     Returns:
     beam: An instance of the beam class configured as a Gaussian beam.
     """
-    par.load_parameters('gauss.cfg')
+    dirname = os.path.dirname(__file__)
+    par.load_parameters(dirname + '/gauss.cfg')
     beam_gauss = beam.init(par)
     return beam_gauss
 
@@ -34,7 +35,8 @@ def set_erf_beam():
     Returns:
     beam: An instance of the beam class configured as an error function beam.
     """
-    par.load_parameters('erf.cfg')
+    dirname = os.path.dirname(__file__)
+    par.load_parameters(dirname + '/erf.cfg')
     beam_erf = beam.init(par)
     return beam_erf
 
@@ -50,7 +52,7 @@ def test_gaussian_beam_max(set_gauss_beam):
     set_gauss_beam (fixture): The Gaussian beam fixture to test.
     """
     res_numeric = set_gauss_beam.find_maxima(0)
-    res_numeric = res_numeric.fun * (-1) / 1e16
+    res_numeric = res_numeric.fun / 1e16
     res_analytic = 0.6253429469e16 / 1e16
     assert_almost_equal(res_numeric, res_analytic, decimal=10)
 
@@ -66,7 +68,7 @@ def test_erf_beam_max(set_erf_beam):
     set_erf_beam (fixture): The error function beam fixture to test.
     """
     res_numeric = set_erf_beam.find_maxima(0)
-    res_numeric = res_numeric.fun * (-1) / 1e16
+    res_numeric = res_numeric.fun / 1e16
     res_analytic = 0.6241509074e16 / 1e16
     assert_almost_equal(res_numeric, res_analytic, decimal=10)
 

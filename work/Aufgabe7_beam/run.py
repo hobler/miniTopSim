@@ -33,12 +33,16 @@ from minitopsim.main import minitopsim
 import minitopsim.parameters as par
 import minitopsim.plot_beam as plotBeam
 
-# Set a flag to control the execution of plotting functionality.
+# Set a flag to control the execution of plotting functionality. This is used
+# to adjust the beam currents such that all three beam profiles have roughly
+# the same maximum beam flux intensity
 plotting = True
 
 if(plotting):
     # Initialize beam configurations if plotting is enabled.
-    beam_const, beam_gauss, beam_erf = plotBeam.init_beams('const.cfg', 'gauss.cfg', 'erf.cfg')
+    beam_const, beam_gauss, beam_erf = plotBeam.init_beams('const.cfg', 
+                                                           'gauss.cfg', 
+                                                           'erf.cfg')
 
     # Plot the beams using the initialized configurations.
     plotBeam.plot_beam(beam_const, beam_gauss, beam_erf)

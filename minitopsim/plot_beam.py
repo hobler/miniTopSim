@@ -11,8 +11,6 @@ Functions:
     plot_beam(beam_const, beam_gauss, beam_erf) - Plots the flux density for 
         the given beam profiles over a specified range.
 """
-
-
 import numpy as np
 import matplotlib.pyplot as plt
 import minitopsim.parameters as par

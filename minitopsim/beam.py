@@ -1,4 +1,3 @@
-
 import numpy as np
 from scipy.constants import e
 from scipy.special import erf
@@ -7,7 +6,7 @@ from scipy.optimize import minimize_scalar
 
 def init(par):
     """
-    Initialize a beam object based on parameters.
+    Initialize a beam object based on user defined parameters.
 
     This function creates a beam object using the parameters provided. It supports
     different types of beams like constant, Gaussian, and error function beams.
@@ -106,10 +105,10 @@ class beam:
         
     def find_maxima(self, x0):
        """
-        Find the maximum flux density near a given position.
+        Find the maximum flux density
 
         This function uses a minimization algorithm to find the position of the 
-        maximum flux density near the given starting point.
+        maximum flux density for a given starting point.
 
         Parameters:
         x0 (float): The starting point for the maximization algorithm.
@@ -118,4 +117,5 @@ class beam:
         OptimizationResult: The result of the minimization algorithm.
         """
        res = minimize_scalar(lambda x: -self.__call__(x0))
+       res.fun = res.fun * (-1)
        return res
