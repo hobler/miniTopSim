@@ -7,8 +7,9 @@ from scipy.constants import elementary_charge
 from minitopsim.surface import Surface
 from . import parameters as par
 from . import sputtering as sput
+from . import beam
 
-def advance(surface, dtime):
+def advance(surface, dtime, beam):
     """
     Calculates the new surface after a time step.
 
@@ -27,7 +28,7 @@ def advance(surface, dtime):
     x = np.copy(surface.x)
     y = np.copy(surface.y)
 
-    velocity = get_velocities(surface)
+    velocity = get_velocities(surface, beam)
 
     x += velocity[0] * dtime
     y += velocity[1] * dtime
@@ -40,7 +41,7 @@ def advance(surface, dtime):
 
     if par.INTERPOLATION:
         if new_surface.has_shadows():
-            return advance(surface, dtime/2)
+            return advance(surface, dtime/2, beam)
         else:
             new_surface.interpolate(surface.x)
 
@@ -66,7 +67,7 @@ def timestep(dt, time, tend):
 
     return dt
 
-def get_velocities(surface):
+def get_velocities(surface, beam):
     """ Calculates the velocities used for advancing the surface.
 
     Calculates the velocities used for advancing in x- & y-direction,
@@ -86,8 +87,9 @@ def get_velocities(surface):
         cos_theta = -normal_vec[1]
         Y_s = sput.get_sputter_yield(cos_theta)
         Y_s = np.nan_to_num(Y_s)    #prevents wierd behavoir from loops
-        F_beam = par.BEAM_CURRENT_DENSITY / elementary_charge
-        F_sput = F_beam * Y_s * cos_theta
+        # F_beam = par.BEAM_CURRENT_DENSITY / elementary_charge
+        x, y = surface.deloop()
+        F_sput = beam(x) * Y_s * cos_theta
         v_normal = F_sput / par.DENSITY     #[cm/s]
         v_normal *= 1e7                     #[nm/s]
 
