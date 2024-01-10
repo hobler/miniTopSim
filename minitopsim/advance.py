@@ -87,7 +87,6 @@ def get_velocities(surface, beam):
         cos_theta = -normal_vec[1]
         Y_s = sput.get_sputter_yield(cos_theta)
         Y_s = np.nan_to_num(Y_s)    #prevents wierd behavoir from loops
-        # F_beam = par.BEAM_CURRENT_DENSITY / elementary_charge
         x, y = surface.deloop()
         F_sput = beam(x) * Y_s * cos_theta
         v_normal = F_sput / par.DENSITY     #[cm/s]
