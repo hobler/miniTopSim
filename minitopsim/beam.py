@@ -19,17 +19,14 @@ def init(par):
     Returns:
     beam: An instance of the beam class with specified parameters.
     """
-    beam_type = par.BEAM_TYPE
-    if(beam_type == 'constant'):
+
+    if(par.BEAM_TYPE == 'constant'):
         beam_current = par.BEAM_CURRENT_DENSITY
     else:
         beam_current = par.BEAM_CURRENT
-    scan_width = par.SCAN_WIDTH
-    beam_center = par.BEAM_CENTER
-    FWHM = par.FWHM
-    erf_beam_width = par.ERF_BEAM_WIDTH
-    return beam(beam_type, beam_current, scan_width, beam_center, 
-                FWHM, erf_beam_width)
+
+    return beam(par.BEAM_TYPE, beam_current, par.SCAN_WIDTH, par.BEAM_CENTER, 
+                par.FWHM, par.ERF_BEAM_WIDTH)
 
 class beam:
     """
