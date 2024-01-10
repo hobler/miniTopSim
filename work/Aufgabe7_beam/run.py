@@ -14,7 +14,7 @@ Usage:
 Dependencies:
     Requires the minitopsim package, including its main, parameters, and 
     plot_beam modules. The configuration files for beam setups ('const.cfg', 
-    'gauss.cfg', 'erf.cfg') should be present in the appropriate directory.
+    'gauss.cfg', 'erf.cfg') should be present in the directory of this module.
 """
 
 import os, sys
@@ -40,9 +40,9 @@ plotting = True
 
 if(plotting):
     # Initialize beam configurations if plotting is enabled.
-    beam_const, beam_gauss, beam_erf = plotBeam.init_beams('const.cfg', 
-                                                           'gauss.cfg', 
-                                                           'erf.cfg')
+    beam_const, beam_gauss, beam_erf = plotBeam.init_beams(filedir+'/const.cfg', 
+                                                           filedir+'/gauss.cfg', 
+                                                           filedir+'/erf.cfg')
 
     # Plot the beams using the initialized configurations.
     plotBeam.plot_beam(beam_const, beam_gauss, beam_erf)

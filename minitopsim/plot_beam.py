@@ -26,7 +26,8 @@ def init_beams(const_cfg, gauss_cfg, erf_cfg):
     erf_cfg (str): File path for the error function beam configuration.
 
     Returns:
-    tuple: A tuple containing three initialized beams (constant, Gaussian, error function).
+    tuple: A tuple containing three initialized beams (constant, Gaussian, 
+    error function).
     """
     par.load_parameters(const_cfg)
     beam_const = init(par)
