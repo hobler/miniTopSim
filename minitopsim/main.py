@@ -8,6 +8,7 @@ from work.Aufgabe9_initial.init_surface import init_surface
 from minitopsim.plot import plot
 from minitopsim.surface import Shadow_Error
 from time import process_time
+from minitopsim.beam import init
 
 import sys
 import os
@@ -29,10 +30,11 @@ def minitopsim():
 
     t_start = process_time()   
 
+    # initialize beam
+    beam = init(par)
     try:
         while dt > 0:
-            surface, dt = advance(surface, dt)
-            
+            surface, dt = advance(surface, dt, beam)
             time += dt
             if not write_surface(surface, time, filename + '.srf'):
                 exit()
