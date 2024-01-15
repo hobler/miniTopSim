@@ -14,7 +14,7 @@ Functions:
 import numpy as np
 import matplotlib.pyplot as plt
 import minitopsim.parameters as par
-from minitopsim.beam import init
+import minitopsim.beam as beam
 
 def init_beams(const_cfg, gauss_cfg, erf_cfg):
     """
@@ -30,13 +30,16 @@ def init_beams(const_cfg, gauss_cfg, erf_cfg):
     error function).
     """
     par.load_parameters(const_cfg)
-    beam_const = init(par)
+    beam.init()
+    beam_const = beam.beam_obj
 
     par.load_parameters(gauss_cfg)
-    beam_gauss = init(par)
+    beam.init()
+    beam_gauss = beam.beam_obj
 
     par.load_parameters(erf_cfg)
-    beam_erf = init(par)
+    beam.init()
+    beam_erf = beam.beam_obj
     
     return beam_const, beam_gauss, beam_erf
 
@@ -53,11 +56,10 @@ def plot_beam(beam_const, beam_gauss, beam_erf):
     beam_gauss (callable): The Gaussian beam profile function.
     beam_erf (callable): The error function beam profile function.
     """
-    x = np.linspace(-1000, 1000, 10000) * 1e-7 # Convert from nm to cm
+    x = np.linspace(-1000, 1000, 10000)
     F_const = np.full(len(x), beam_const(x))
     F_gauss = beam_gauss(x)
     F_erf = beam_erf(x)
-    x = x * 1e7 # Convert back from cm to nm
     plt.title('Beam flux density for different beam profiles', fontsize=12)
     plt.plot(x, F_const, label='constant')
     plt.plot(x, F_gauss, label='gaussian')
