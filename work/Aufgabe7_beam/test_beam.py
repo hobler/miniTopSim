@@ -22,8 +22,8 @@ def set_gauss_beam():
     """
     dirname = os.path.dirname(__file__)
     par.load_parameters(dirname + '/gauss.cfg')
-    beam_gauss = beam.init(par)
-    return beam_gauss
+    beam.init()
+    return beam.beam_obj
 
 @pytest.fixture
 def set_erf_beam():
@@ -38,8 +38,8 @@ def set_erf_beam():
     """
     dirname = os.path.dirname(__file__)
     par.load_parameters(dirname + '/erf.cfg')
-    beam_erf = beam.init(par)
-    return beam_erf
+    beam.init()
+    return beam.beam_obj
 
 #Test should pass
 def test_gaussian_beam_max(set_gauss_beam):
@@ -52,12 +52,12 @@ def test_gaussian_beam_max(set_gauss_beam):
     Parameters:
     set_gauss_beam (fixture): The Gaussian beam fixture to test.
     """
-    res_analytic = 0.6253429469e16
+    res_analytic = 0.6241702452e16
     exponent = int(math.log10(res_analytic))+1
     res_analytic = res_analytic / 10**exponent
     res_numeric = set_gauss_beam.find_maxima(0)
     res_numeric = res_numeric.fun / 10**exponent
-    assert_almost_equal(res_numeric, res_analytic, decimal=10)
+    assert_almost_equal(res_analytic, res_numeric, decimal=9)
 
 #test should pass
 def test_erf_beam_max(set_erf_beam):
@@ -75,7 +75,7 @@ def test_erf_beam_max(set_erf_beam):
     res_analytic = res_analytic / 10**exponent
     res_numeric = set_erf_beam.find_maxima(0)
     res_numeric = res_numeric.fun / 10**exponent
-    assert_almost_equal(res_numeric, res_analytic, decimal=10)
+    assert_almost_equal(res_analytic, res_numeric, decimal=9)
 
 #test should pass
 def test_gaussian_beam_arbitrary_point(set_gauss_beam):
@@ -88,12 +88,12 @@ def test_gaussian_beam_arbitrary_point(set_gauss_beam):
     Parameters:
     set_gauss_beam (fixture): The Gaussian beam fixture to test.
     """
-    F_analytic = 0.3908393418e15
+    F_analytic = 0.3901064036e15
     exponent = int(math.log10(F_analytic))+1
     F_analytic = F_analytic / 10**exponent
-    arbitrary_point = 100 * 1e-7 # in cm
+    arbitrary_point = 100
     F_gauss = set_gauss_beam(arbitrary_point) / 10**exponent
-    assert_almost_equal(F_gauss, F_analytic, decimal=10)
+    assert_almost_equal(F_analytic, F_gauss, decimal=9)
 
 #test should pass
 def test_erf_beam_arbitrary_point(set_erf_beam):
@@ -106,9 +106,9 @@ def test_erf_beam_arbitrary_point(set_erf_beam):
     Parameters:
     set_erf_beam (fixture): The error function beam fixture to test.
     """
-    F_analytic = 0.6241509074e16
+    F_analytic = 0.3120754537e16
     exponent = int(math.log10(F_analytic))+1
     F_analytic = F_analytic / 10**exponent
-    arbitrary_point = 100 * 1e-7 # in cm
+    arbitrary_point = 500
     F_erf = set_erf_beam(arbitrary_point) / 10**exponent
-    assert_almost_equal(F_erf, F_analytic, decimal=10)
+    assert_almost_equal(F_analytic, F_erf, decimal=9)

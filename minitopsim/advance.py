@@ -9,7 +9,7 @@ from . import parameters as par
 from . import sputtering as sput
 from . import beam
 
-def advance(surface, dtime, beam):
+def advance(surface, dtime):
     """
     Calculates the new surface after a time step.
 
@@ -28,7 +28,7 @@ def advance(surface, dtime, beam):
     x = np.copy(surface.x)
     y = np.copy(surface.y)
 
-    velocity = get_velocities(surface, beam)
+    velocity = get_velocities(surface)
 
     x += velocity[0] * dtime
     y += velocity[1] * dtime
@@ -41,7 +41,7 @@ def advance(surface, dtime, beam):
 
     if par.INTERPOLATION:
         if new_surface.has_shadows():
-            return advance(surface, dtime/2, beam)
+            return advance(surface, dtime/2)
         else:
             new_surface.interpolate(surface.x)
 
@@ -67,7 +67,7 @@ def timestep(dt, time, tend):
 
     return dt
 
-def get_velocities(surface, beam):
+def get_velocities(surface):
     """ Calculates the velocities used for advancing the surface.
 
     Calculates the velocities used for advancing in x- & y-direction,
@@ -87,8 +87,7 @@ def get_velocities(surface, beam):
         cos_theta = -normal_vec[1]
         Y_s = sput.get_sputter_yield(cos_theta)
         Y_s = np.nan_to_num(Y_s)    #prevents wierd behavoir from loops
-        x, y = surface.deloop()
-        F_sput = beam(x) * Y_s * cos_theta
+        F_sput = beam.beam_obj(surface.x) * Y_s * cos_theta
         v_normal = F_sput / par.DENSITY     #[cm/s]
         v_normal *= 1e7                     #[nm/s]
 

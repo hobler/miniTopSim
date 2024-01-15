@@ -36,7 +36,7 @@ import minitopsim.plot_beam as plotBeam
 # Set a flag to control the execution of plotting functionality. This is used
 # to adjust the beam currents such that all three beam profiles have roughly
 # the same maximum beam flux intensity
-plotting = True
+plotting = False
 
 if(plotting):
     # Initialize beam configurations if plotting is enabled.
