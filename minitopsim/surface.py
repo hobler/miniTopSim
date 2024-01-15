@@ -61,6 +61,7 @@ class Surface:
 
         # Normalize the normal vectors
         # Vektornorm stimmt nicht
+        # Comment Pechhacker: might be reason for moving horizontal surface
         normal_vecs /= np.linalg.norm(normal_vecs, axis=0)
 
         return normal_vecs
@@ -155,37 +156,37 @@ class Surface:
         n_nodes = len(self.x)
         
         # Calculate node distance matrix
-        d_x = np.zeros((n_nodes, n_nodes))
-        d_y = np.zeros((n_nodes, n_nodes))
-        for i in range(n_nodes):
-            d_x[i] = self.x - self.x[i]
-            d_y[i] = self.y - self.y[i]
+        d_x = np.tile(self.x, (n_nodes, 1)) - np.tile(self.x, (n_nodes, 1)).T
+        d_y = np.tile(self.y, (n_nodes, 1)) - np.tile(self.y, (n_nodes, 1)).T
         d = np.sqrt(d_x**2 + d_y**2)
-        
+            
         # Calculate cos_beta matrix
         cos_beta = np.zeros((n_nodes, n_nodes))
         normal_vecs = -self.normal_vector()
         for i in range(n_nodes):
-            for j in range(n_nodes):
-                # Avoid zero divison d_ii=0
-                if i != j:
-                    d_ij_vec = np.array([d_x[i,j], d_y[i,j]])
+                    d_ij_vecs = np.array([d_x[i,:], d_y[i,:]])
                     # Norm of normal vectors should be 1
-                    cos_beta[i, j] = np.dot(normal_vecs[:,i], d_ij_vec)/d[i,j]
-
+                    normal_vec_norm = np.linalg.norm(normal_vecs[:,i])
+                    cos_beta[i] = np.dot(normal_vecs[:,i], d_ij_vecs)/(d[i,:]*normal_vec_norm)          
+        
+        # Set the diagonal values to zero
+        np.fill_diagonal(cos_beta, 0)                        
+                    
         # Calculate the view factor matrix f
+        cos_b_X_b_T = np.matmul(cos_beta, cos_beta.T)
+        
         f = np.zeros((n_nodes, n_nodes))
         for i in range(n_nodes):
             for j in range(n_nodes):
-                if i != j and cos_beta[i,j] > 0 and cos_beta[j,i] > 0:
-                    # Calc d_lj and handle first and last node
+                if i !=j and cos_beta[i,j] > 0 and cos_beta[j,i] > 0:
+                    # Calc d_lj and handle first and last nodes
                     if j == 0:
                         d_lj = d[i,j+1];
                     elif j == (n_nodes-1):
                         d_lj = d[i,j-1]
                     else:
                         d_lj = (d[i,j+1] + d[i,j-1])/2
-                    
-                    f[i,j] = cos_beta[i,j] * cos_beta[j,i] / (2 * d[i, j])*d_lj
+                    # transpose cos_beta_ji = cos_beta_ij
+                    f[i,j] =  cos_b_X_b_T[i, j] / (2 * d[i, j])*d_lj
         
         return f

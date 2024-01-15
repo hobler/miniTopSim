@@ -75,7 +75,7 @@ def get_velocities(surface):
         array-like (2xn): velocities in x- & y-direction (row 1/2)
     """
     normal_vec = surface.normal_vector()
-
+    
     if par.ETCHING:
         v_normal = np.full_like(surface.x, par.ETCH_RATE) #normal velocity [nm/s]
     else:
@@ -85,12 +85,13 @@ def get_velocities(surface):
         F_beam = par.BEAM_CURRENT_DENSITY / elementary_charge
         F_sput = F_beam * Y_s * cos_theta
         
+        v_normal = F_sput/ par.DENSITY                          #[cm/s]
+        
         if par.REDEP:
             F_redep = np.matmul(surface.view_factor(), F_sput)
-            v_normal = (F_sput - F_redep)/ par.DENSITY     #[cm/s]                             
-        else:
-            v_normal = F_sput/ par.DENSITY                 #[cm/s]
-                                        
+            v_normal_redep = F_redep/ par.DENSITY               #[cm/s]      
+            v_normal -= v_normal_redep                          #[cm/s]       
+        
     v_normal *= 1e7  #[nm/s]   
                                    
     if not par.INTERPOLATION: 
