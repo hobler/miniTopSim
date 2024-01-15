@@ -17,7 +17,7 @@ import matplotlib as mpl
 from minitopsim.io_surface import read_surface
 
 
-def plot(srf_file1, srf_file2):
+def plot(srf_file1, srf_file2=None):
     mpl.rcParams['keymap.save'] = "ü"
     mpl.rcParams['keymap.quit'] = "ä"
     mpl.rcParams['keymap.fullscreen'] = "ß"
@@ -95,13 +95,14 @@ class Surface_Plotter:
                 if current_surface is None or current_time is None:
                     break
                 self.surface_data1.append((current_surface, current_time))
-        with open(self.srf_file2, 'r') as file:
-            self.surface_data2 = []  # Clear existing surface data
-            while True:
-                current_surface, current_time = read_surface(file)
-                if current_surface is None or current_time is None:
-                    break
-                self.surface_data2.append((current_surface, current_time))
+        if self.srf_file2:
+            with open(self.srf_file2, 'r') as file:
+                self.surface_data2 = []  # Clear existing surface data
+                while True:
+                    current_surface, current_time = read_surface(file)
+                    if current_surface is None or current_time is None:
+                        break
+                    self.surface_data2.append((current_surface, current_time))
 
     def on_key_press(self, event):
         """
@@ -153,10 +154,12 @@ class Surface_Plotter:
 
         if 0 <= self.index < len(self.surface_data1):
             current_surface, current_time = self.surface_data1[self.index]
-            closest_surface, closest_time = min(self.surface_data2, key=lambda x: abs(x[1] - current_time))
+            self.ax.plot(current_surface.x, current_surface.y, "b", label=f"{self.srf_file1} @ {current_time}")
 
-            self.ax.plot(current_surface.x, current_surface.y, "b", label=f"{self.srf_file1}")
-            self.ax.plot(closest_surface.x, closest_surface.y, "r--", label=f"{self.srf_file2}")
+            if self.srf_file2:
+                closest_surface, closest_time = min(self.surface_data2, key=lambda x: abs(x[1] - current_time))
+                self.ax.plot(closest_surface.x, closest_surface.y, "r--", label=f"{self.srf_file2} @ {closest_time}")
+            
             self.ax.set_title(f"Time: {current_time}")
             self.ax.set_xlabel("X Position (nm)")
             self.ax.set_ylabel("Y Position (nm)")
