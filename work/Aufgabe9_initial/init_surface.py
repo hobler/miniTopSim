@@ -27,15 +27,17 @@ def init_surface():
     
     # Case: Flat surface (no change needed)
     if par.INITIAL_SURFACE_TYPE == 'Flat':
-        None # surface already initialized
+        pass # surface already initialized
 
     # Case: Cosine surface
     elif par.INITIAL_SURFACE_TYPE == 'Cosine':
-        y[mask] = par.FUN_PEAK_TO_PEAK/2 * (1 - np.cos(2 * np.pi * (x[mask] - par.FUN_XMIN) / (par.FUN_XMAX - par.FUN_XMIN)))
+        y[mask] = par.FUN_PEAK_TO_PEAK/2 * \
+            (1 - np.cos(2 * np.pi * (x[mask] - par.FUN_XMIN) / (par.FUN_XMAX - par.FUN_XMIN)))
 
     # Case: Double Cosine surface
     elif par.INITIAL_SURFACE_TYPE == 'DoubleCosine':
-        y[mask] = par.FUN_PEAK_TO_PEAK/2 * (1 - np.cos(4 * np.pi * (x[mask] - par.FUN_XMIN) / (par.FUN_XMAX - par.FUN_XMIN)))
+        y[mask] = par.FUN_PEAK_TO_PEAK/2 * \
+            (1 - np.cos(4 * np.pi * (x[mask] - par.FUN_XMIN) / (par.FUN_XMAX - par.FUN_XMIN)))
 
     # Case: Step surface
     elif par.INITIAL_SURFACE_TYPE == 'Step':

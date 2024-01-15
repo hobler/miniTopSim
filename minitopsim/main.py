@@ -57,6 +57,6 @@ def minitopsim():
             elif len(sys.argv) >= 3:
                 plot(filename + '.srf', sys.argv[2])
             else:
-                print('No .srf_save file found / Please provide a .srf file as additional argument')
+                plot(filename + '.srf')
 
     return True
