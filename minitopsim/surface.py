@@ -191,3 +191,45 @@ class Surface:
         y_delooped = np.array(y_delooped)
 
         return x_delooped, y_delooped
+    
+    def view_factor(self):
+       """Returns the view factor matrix of the surface.
+
+       Args:
+           none
+       """
+       n_nodes = len(self.x)
+       
+       # Calculate node distance matrix
+       d_x = np.tile(self.x, (n_nodes, 1)) - np.tile(self.x, (n_nodes, 1)).T
+       d_y = np.tile(self.y, (n_nodes, 1)) - np.tile(self.y, (n_nodes, 1)).T
+       d = np.sqrt(d_x**2 + d_y**2)
+           
+       # Calculate cos_beta matrix
+       cos_beta = np.zeros((n_nodes, n_nodes))
+       normal_vecs = -self.normal_vector()
+       for i in range(n_nodes):
+                   d_ij_vecs = np.array([d_x[i,:], d_y[i,:]])
+                   # Norm of normal vectors should be 1
+                   normal_vec_norm = np.linalg.norm(normal_vecs[:,i])
+                   cos_beta[i] = np.dot(normal_vecs[:,i], d_ij_vecs)/(d[i,:]*normal_vec_norm)          
+       
+       # Set the diagonal values to zero
+       np.fill_diagonal(cos_beta, 0)                        
+       
+       # Create a binary mask for valid indices
+       valid_mask = (cos_beta > 0) & (cos_beta.T > 0) & (~np.eye(n_nodes, dtype=bool))
+       
+       # transpose cos_beta_ji = cos_beta_ij
+       cos_b_X_b_T = np.matmul(cos_beta, cos_beta.T)
+       
+       # Calculate node distances
+       d_lj_1 =  np.roll(d, 1, axis=1)
+       d_lj_2 =  np.roll(d, -1, axis=1)
+       d_lj = d_lj_1 + d_lj_2/2
+       
+       # Calculate the view factor matrix f
+       f = np.zeros((n_nodes, n_nodes))
+       f = np.where(valid_mask, cos_b_X_b_T / (2 * d) * d_lj, 0)
+
+       return f
