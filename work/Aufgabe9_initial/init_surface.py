@@ -54,8 +54,12 @@ def init_surface():
     # Case: File surface (read from a file)
     elif par.INITIAL_SURFACE_TYPE == 'File':
         with open(par.INITIAL_SURFACE_FILE) as file:
-            surface, t = read_surface(file)
-            return surface
+            temp = 1
+            while temp is not None:
+                srf, temp = read_surface(file) # extract only last surface
+                if srf is not None:
+                    surface = srf
+        return surface
     
     # Case: Invalid surface type
     else:

@@ -9,8 +9,8 @@ filedir = os.path.dirname(__file__)
 codedir = os.path.join(filedir, '..', '..', 'minitopsim')
 sys.path.insert(0, codedir)
 
-sys.argv.append('work/Aufgabe9_initial/cosine_dt0_5.cfg')
-sys.argv.append('work/Aufgabe9_initial/cosine.srf')
+sys.argv.append('work/Aufgabe9_initial/cosine_2.cfg')
+sys.argv.append('work/Aufgabe9_initial/cosine_1.srf')
 
 from minitopsim.main import minitopsim
 import minitopsim.parameters as par
