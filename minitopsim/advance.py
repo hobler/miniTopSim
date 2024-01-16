@@ -7,6 +7,7 @@ from scipy.constants import elementary_charge
 from minitopsim.surface import Surface
 from . import parameters as par
 from . import sputtering as sput
+from . import beam
 
 def advance(surface, dtime):
     """
@@ -31,6 +32,10 @@ def advance(surface, dtime):
 
     x += velocity[0] * dtime
     y += velocity[1] * dtime
+
+    surface.x = np.copy(x)
+    surface.y = np.copy(y)
+    x, y = surface.deloop()
 
     new_surface = Surface(x, y)
 
@@ -75,25 +80,17 @@ def get_velocities(surface):
         array-like (2xn): velocities in x- & y-direction (row 1/2)
     """
     normal_vec = surface.normal_vector()
-    
+
     if par.ETCHING:
-        v_normal = np.full_like(surface.x, par.ETCH_RATE) #normal velocity [nm/s]
+        v_normal = np.full_like(surface.x, par.ETCH_RATE)  #normal velocity [nm/s]
     else:
         cos_theta = -normal_vec[1]
         Y_s = sput.get_sputter_yield(cos_theta)
         Y_s = np.nan_to_num(Y_s)    #prevents wierd behavoir from loops
-        F_beam = par.BEAM_CURRENT_DENSITY / elementary_charge
-        F_sput = F_beam * Y_s * cos_theta
-        
-        v_normal = F_sput/ par.DENSITY                          #[cm/s]
-        
-        if par.REDEP:
-            F_redep = np.matmul(surface.view_factor(), F_sput)
-            v_normal_redep = F_redep/ par.DENSITY               #[cm/s]      
-            v_normal -= v_normal_redep                          #[cm/s]       
-        
-    v_normal *= 1e7  #[nm/s]   
-                                   
+        F_sput = beam.beam_obj(surface.x) * Y_s * cos_theta
+        v_normal = F_sput / par.DENSITY     #[cm/s]
+        v_normal *= 1e7                     #[nm/s]
+
     if not par.INTERPOLATION: 
         if surface.has_shadows():
             msk = surface.get_shadows()

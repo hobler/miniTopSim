@@ -3,9 +3,11 @@ Module containing the class Surface.
 """
 import numpy as np
 
+
 class Shadow_Error(Exception):
     """Error during Shadow calculation in Surface Class"""
     pass
+
 
 class Surface:
     """
@@ -60,6 +62,7 @@ class Surface:
         normal_vecs = np.vstack((dy, -dx))
 
         # Normalize the normal vectors
+        # Vektornorm stimmt nicht
         normal_vecs /= np.linalg.norm(normal_vecs, axis=0)
 
         return normal_vecs
@@ -93,7 +96,7 @@ class Surface:
                     raise Shadow_Error(msg)
                 for j in range(i-1, -1, -1):
                     if self.x[j] == x:
-                        interp_y = self.y[j]    #no interpolation needed
+                        interp_y = self.y[j]    # no interpolation needed
                         break
                     elif self.x[j] < x < self.x[j+1]:
                         xp = self.x[j:j+2]
@@ -105,7 +108,7 @@ class Surface:
                         yp = self.y[j+1:j-1:-1]
                         interp_y = np.interp(x, xp, yp)
                         break
-                #potentially shadowed point
+                # potentially shadowed point
                 shadows_mask[i] = (y <= interp_y)
 
         for i, (x, y) in reversed(list(enumerate(zip(self.x[:-1],
@@ -116,7 +119,7 @@ class Surface:
                     raise Shadow_Error(msg)
                 for j in range(i+1, self.x.size):
                     if self.x[j] == x:
-                        interp_y = self.y[j]    #no interpolation needed
+                        interp_y = self.y[j]    # no interpolation needed
                         break
                     elif self.x[j-1] < x < self.x[j]:
                         xp = self.x[j-1:j+1]
@@ -128,7 +131,7 @@ class Surface:
                         yp = self.y[j:j-2:-1]
                         interp_y = np.interp(x, xp, yp)
                         break
-                #potentially shadowed point
+                # potentially shadowed point
                 shadows_mask[i] = shadows_mask[i] or (y <= interp_y)
 
         return shadows_mask
@@ -144,47 +147,47 @@ class Surface:
         ynew = np.interp(xnew, self.x, self.y)
         self.x = xnew
         self.y = ynew
-        
-    def view_factor(self):
-        """Returns the view factor matrix of the surface.
 
-        Args:
-            none
+    def deloop(self):
         """
-        n_nodes = len(self.x)
-        
-        # Calculate node distance matrix
-        d_x = np.tile(self.x, (n_nodes, 1)) - np.tile(self.x, (n_nodes, 1)).T
-        d_y = np.tile(self.y, (n_nodes, 1)) - np.tile(self.y, (n_nodes, 1)).T
-        d = np.sqrt(d_x**2 + d_y**2)
-            
-        # Calculate cos_beta matrix
-        cos_beta = np.zeros((n_nodes, n_nodes))
-        normal_vecs = -self.normal_vector()
-        for i in range(n_nodes):
-                    d_ij_vecs = np.array([d_x[i,:], d_y[i,:]])
-                    # Norm of normal vectors should be 1
-                    normal_vec_norm = np.linalg.norm(normal_vecs[:,i])
-                    cos_beta[i] = np.dot(normal_vecs[:,i], d_ij_vecs)/(d[i,:]*normal_vec_norm)          
-        
-        # Set the diagonal values to zero
-        np.fill_diagonal(cos_beta, 0)                        
-                    
-        # Calculate the view factor matrix f
-        cos_b_X_b_T = np.matmul(cos_beta, cos_beta.T)
-        # mask cos_b > 0 & über ränder for
-        f = np.zeros((n_nodes, n_nodes))
-        for i in range(n_nodes):
-            for j in range(n_nodes):
-                if i !=j and cos_beta[i,j] > 0 and cos_beta[j,i] > 0:
-                    # Calc d_lj and handle first and last nodes
-                    if j == 0:
-                        d_lj = d[i,j+1];
-                    elif j == (n_nodes-1):
-                        d_lj = d[i,j-1]
-                    else:
-                        d_lj = (d[i,j+1] + d[i,j-1])/2
-                    # transpose cos_beta_ji = cos_beta_ij
-                    f[i,j] =  cos_b_X_b_T[i, j] / (2 * d[i, j])*d_lj
-        
-        return f
+        Calculates a new sequence of point coordinates by eliminating loops.
+
+        Returns:
+            x_delooped (array(float)): The x-coordinates of the points without loops.
+            y_delooped (array(float)): The y-coordinates of the points without loops.
+
+        """
+        x = self.x
+        y = self.y
+        x_local = x.tolist()
+        y_local = y.tolist()
+        k = 0
+        x_delooped = []
+        y_delooped = []
+        dx = np.diff(x)
+        dy = np.diff(y)
+
+        for i in range(dx.size-2):
+            for j in range(i+2, dx.size):
+                a = [[dx[j], -dx[i]], [dy[j], -dy[i]]]
+                b = [x[i] - x[j], y[i] - y[j]]              # create coefficient arrays
+                try:
+                    check_t, check_k = np.linalg.solve(a, b)      # trying to solve system of equations
+                except np.linalg.LinAlgError:
+                    check_t, check_k = [2, 2]
+                if ((check_t >= 0) & (check_t < 1) &
+                        (check_k >= 0) & (check_k < 1)):    # finding intersections
+                    t = check_t
+                    x_neu = x[j] + dx[j] * t
+                    y_neu = y[j] + dy[j] * t
+                    x_delooped = x_delooped + x_local[k: i + 1] + [x_neu]
+                    y_delooped = y_delooped + y_local[k: i + 1] + [y_neu]
+                    k = j + 1
+
+        x_delooped = x_delooped + x_local[k:dx.size + 1]
+        y_delooped = y_delooped + y_local[k:dy.size + 1]
+
+        x_delooped = np.array(x_delooped)
+        y_delooped = np.array(y_delooped)
+
+        return x_delooped, y_delooped

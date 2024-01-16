@@ -17,14 +17,14 @@ import matplotlib as mpl
 from minitopsim.io_surface import read_surface
 
 
-def plot(srf_file):
+def plot(srf_file1, srf_file2=None):
     mpl.rcParams['keymap.save'] = "ü"
     mpl.rcParams['keymap.quit'] = "ä"
     mpl.rcParams['keymap.fullscreen'] = "ß"
     mpl.rcParams['keymap.yscale'] = "#"
     mpl.rcParams["keymap.back"] = "~"
 
-    plot1 = Surface_Plotter(srf_file)
+    plot1 = Surface_Plotter(srf_file1, srf_file2)
     plot1.run()
 
 
@@ -57,17 +57,19 @@ class Surface_Plotter:
         start_plotting(): Start the interactive plot.
     """
 
-    def __init__(self, srf_file):
+    def __init__(self, srf_file1, srf_file2):
         """
         Initialize the SurfacePlotter object.
 
         Args:
-            srf_file (str): The name of the surface file to be plotted.
+            srf_file1 (str): The name of the surface file to be plotted. (blue full)
+            srf_file2 (str): The name of the surface file to be plotted next to srf_file1. (red dashed)
         """
-        self.srf_file = srf_file
+        self.srf_file1 = srf_file1
+        self.srf_file2 = srf_file2
 
         # Store the surface and time tuples in a list
-        self.surface_data = []
+        self.surface_data1 = []
 
         self.index = 0
 
@@ -86,13 +88,21 @@ class Surface_Plotter:
         self.update_plot()
 
     def read_surfaces(self):
-        with open(self.srf_file, 'r') as file:
-            self.surface_data = []  # Clear existing surface data
+        with open(self.srf_file1, 'r') as file:
+            self.surface_data1 = []  # Clear existing surface data
             while True:
                 current_surface, current_time = read_surface(file)
                 if current_surface is None or current_time is None:
                     break
-                self.surface_data.append((current_surface, current_time))
+                self.surface_data1.append((current_surface, current_time))
+        if self.srf_file2:
+            with open(self.srf_file2, 'r') as file:
+                self.surface_data2 = []  # Clear existing surface data
+                while True:
+                    current_surface, current_time = read_surface(file)
+                    if current_surface is None or current_time is None:
+                        break
+                    self.surface_data2.append((current_surface, current_time))
 
     def on_key_press(self, event):
         """
@@ -115,7 +125,7 @@ class Surface_Plotter:
             self.index = 0
             self.update_plot()
         elif key == 'l':
-            self.index = len(self.surface_data) - 1
+            self.index = len(self.surface_data1) - 1
             self.update_plot()
         elif key == 'r':
             self.reverse = not self.reverse
@@ -125,7 +135,7 @@ class Surface_Plotter:
         elif key == 'd':
             self.delete_previous = not self.delete_previous
         elif key == 's':
-            file = os.path.split(self.srf_file)[1]
+            file = os.path.split(self.srf_file1)[1]
             self.fig.savefig(os.path.join(
                 os.getcwd(), f"{os.path.splitext(file)[0]}.png"))
             print("file saved")
@@ -142,12 +152,19 @@ class Surface_Plotter:
         if self.delete_previous:
             self.ax.clear()
 
-        if 0 <= self.index < len(self.surface_data):
-            current_surface, current_time = self.surface_data[self.index]
-            self.ax.plot(current_surface.x, current_surface.y, "b")
+        if 0 <= self.index < len(self.surface_data1):
+            current_surface, current_time = self.surface_data1[self.index]
+            self.ax.plot(current_surface.x, current_surface.y, "b", label=f"{self.srf_file1} @ {current_time}")
+
+            if self.srf_file2:
+                closest_surface, closest_time = min(self.surface_data2, key=lambda x: abs(x[1] - current_time))
+                self.ax.plot(closest_surface.x, closest_surface.y, "r--", label=f"{self.srf_file2} @ {closest_time}")
+            
             self.ax.set_title(f"Time: {current_time}")
             self.ax.set_xlabel("X Position (nm)")
             self.ax.set_ylabel("Y Position (nm)")
+            if self.ax.get_legend() is None:
+                self.ax.legend()
 
             self.ax.set_aspect('auto' if self.aspect_ratio_auto else 'equal')
 
@@ -158,14 +175,14 @@ class Surface_Plotter:
                 self.ax.set_xlim(self.ax.get_xlim())
 
             self.fig.canvas.draw_idle()
-        elif self.index >= len(self.surface_data):
+        elif self.index >= len(self.surface_data1):
             print("last surface already plotted")
-            self.index = len(self.surface_data) - 1 - self.show_every
+            self.index = len(self.surface_data1) - 1 - self.show_every
         elif self.index < 0:
             self.index = 0 + self.show_every
             print("first surface already plotted")
 
     def run(self):
-        self.fig.canvas.manager.set_window_title(self.srf_file)
+        self.fig.canvas.manager.set_window_title(self.srf_file1)
         self.fig.canvas.mpl_connect('key_press_event', self.on_key_press)
         plt.show()
