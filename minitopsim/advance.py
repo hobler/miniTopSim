@@ -99,4 +99,4 @@ def get_velocities(surface):
             msk = surface.get_shadows()
             v_normal[msk] = 0
 
-    return np.matmul(normal_vec , v_normal)
+    return normal_vec * v_normal

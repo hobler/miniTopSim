@@ -60,8 +60,6 @@ class Surface:
         normal_vecs = np.vstack((dy, -dx))
 
         # Normalize the normal vectors
-        # Vektornorm stimmt nicht
-        # Comment Pechhacker: might be reason for moving horizontal surface
         normal_vecs /= np.linalg.norm(normal_vecs, axis=0)
 
         return normal_vecs
@@ -174,7 +172,7 @@ class Surface:
                     
         # Calculate the view factor matrix f
         cos_b_X_b_T = np.matmul(cos_beta, cos_beta.T)
-        
+        # mask cos_b > 0 & über ränder for
         f = np.zeros((n_nodes, n_nodes))
         for i in range(n_nodes):
             for j in range(n_nodes):
