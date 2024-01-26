@@ -15,7 +15,7 @@ import os
 
 def minitopsim():
     par.load_parameters(sys.argv[1])
-
+    
     time = 0
     tend = par.TOTAL_TIME
     dt = timestep(par.TIME_STEP, time, tend)
